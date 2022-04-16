@@ -23,6 +23,7 @@ parser.add_argument("-v", "--verbose", help="Set output to verbose", action="sto
 parser.add_argument("-vvv", "--super-verbose", help="Set output to super verbose where this script will print basically everything", action="store_true")
 parser.add_argument("-i", "--input-values", help="Add one or more file locations that include input values to the templating", action="append", nargs="*")
 parser.add_argument("-t", "--templates", help="Add one or more file locations that contain the templates themselves", action="append", nargs="*")
+parser.add_argument("-ie", "--ignore-env-vars", help="Tell jinny to ignore any environment variables that begin with JINNY_, defaults to not ignoring these environment variables and setting them at the highest priority", action="store_true")
 
 # Jinja Specific Arguments
 parser.add_argument("--j-block-start", help="Change the characters that indicate the start of a block, default '{%'", type=str, default="{%")
@@ -145,6 +146,16 @@ for inputsPath in args.i:
     jinny_logging.Log(f"Could not load inputs file '{inputsPath}' as either a json or a yaml file, please inspect!", quitWithStatus=1)
 
   overallValues = jinny_merging.CombineValues(overallValues, finalObj, fullPath)
+
+if not args.ie:
+  foundVars = {}
+  for e in os.environ.keys():
+    if e.startswith("JINNY_") and len(e) > 6:
+      foundVars[e[6:]] = os.environ[e]
+
+  for e in foundVars:
+    nestedVal = e.split('.')
+    
 
 ##########################################
 # Templating

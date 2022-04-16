@@ -47,3 +47,48 @@ def CombineValues(originalVals, newVals, sourceName:str):
 
     return workingVals
 
+def GetNestedResource(listOfElements, baseResource, raiseException=False):
+  returningResource = None
+  currentTier = baseResource
+  for index, element in enumerate(listOfElements):
+    currentType = type(currentTier)
+    if currentType == dict:
+      if element in currentTier:
+        currentTier = currentTier[element]
+      else:
+        if raiseException:
+          raise Exception(f"Could not find {element} in {baseResource} after cycling through {', '.join(listOfElements[:index])}")
+        else:
+          break
+    elif currentType == list:
+      if len(currentTier) > element + 1:
+        currentTier = currentTier[element]
+    elif currentType == str or currentType == int or currentType == bool or currentType == float or currentType == complex:
+      if index + 1 >= len(listOfElements):
+        if raiseException:
+          exceptionString = f"Hit a non-nested type of {currentType} at {index} / {len(listOfElements)} after cycling through {', '.join(listOfElements[:index])}.\nFull path is {', '.join(listOfElements)}.\nTarget Object is:\n{yaml.dump(baseResource)}".encode().decode('unicode-escape')
+          raise Exception(exceptionString)
+        else:
+          break
+    if index + 1 >= len(listOfElements):
+      returningResource = currentTier
+      break
+  return returningResource
+
+def SetNestedResource(value, baseResource, path:list):
+  workingPath = list(path)
+  searching = True
+  currentResource = baseResource
+  while searching:
+    t = type(currentResource)
+    if t == dict:
+      if workingPath[0] in currentResource:
+        currentResource = currentResource[workingPath[0]]
+        workingPath.pop(0)
+        continue
+    elif t == list:
+      try:
+        targetInt = int(workingPath[0])
+      except Exception as e:
+        execDetails = sys.exc_info()
+        LoggingFunction(f"Failed to parse integer for value '{workingPath[0]}'. Current object at path '{'.'.join(path[:len(workingPath)+1])}' is a list, hence it needs an integer for targeting the child element, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{execDetails[2]}", quitWithStatus=1)
