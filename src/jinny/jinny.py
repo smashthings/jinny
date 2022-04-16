@@ -24,6 +24,7 @@ parser.add_argument("-vvv", "--super-verbose", help="Set output to super verbose
 parser.add_argument("-i", "--input-values", help="Add one or more file locations that include input values to the templating", action="append", nargs="*")
 parser.add_argument("-t", "--templates", help="Add one or more file locations that contain the templates themselves", action="append", nargs="*")
 parser.add_argument("-ie", "--ignore-env-vars", help="Tell jinny to ignore any environment variables that begin with JINNY_, defaults to not ignoring these environment variables and setting them at the highest priority", action="store_true")
+parser.add_argument("-ds", "--dict-separator", help="When providing targeting on the CLI or via environment variables, choose a particular separating character for targeting nested elements, defaults to '.'", default=".", type=str)
 
 # Jinja Specific Arguments
 parser.add_argument("--j-block-start", help="Change the characters that indicate the start of a block, default '{%'", type=str, default="{%")
@@ -154,7 +155,7 @@ if not args.ie:
       foundVars[e[6:]] = os.environ[e]
 
   for e in foundVars:
-    nestedVal = e.split('.')
+    nestedVal = e.split(args.ds)
     
 
 ##########################################
