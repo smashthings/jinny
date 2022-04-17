@@ -8,9 +8,13 @@ spec:
   {% for key,value in ports.items() %}
   - name: {{ key }}
     port: {{ value }}
+    targetPort: {{ listening_port }}
   {% endfor %}
   selector:
-  {{ common_labels | indent(4) }}
+  {% for key,value in common_labels.items() %}
+    {{ key }}: "{{ value }}"
+  {% endfor %}
+  
 ---
 {% if nodeport is defined %}
 apiVersion: v1
@@ -22,10 +26,12 @@ spec:
   type: NodePort
   ports:
   - nodePort: {{ nodeport }}
-    port: {{ ports.items()[0][1] }}
-    targetPort: {{ ports.items()[0][1] }}
+    port: {{ listening_port }}
+    targetPort: {{ listening_port }}
   selector:
-    {{ common_labels | indent(4) }}
+  {% for key,value in common_labels.items() %}
+    {{ key }}: "{{ value }}"
+  {% endfor %}
 ---
 {% endif %}
 apiVersion: v1
@@ -34,7 +40,9 @@ metadata:
   name: {{ release_name }}
   namespace: {{ namespace }}
   labels:
-    {{ common_labels | indent(4) }}
+  {% for key,value in common_labels.items() %}
+    {{ key }}: "{{ value }}"
+  {% endfor %}
 spec:
   terminationGracePeriodSeconds: 3
   containers:
@@ -43,8 +51,10 @@ spec:
     ports:
     - name: web
       containerPort: {{ listening_port }}
+    {% if env_vars is defined %}
     env:
     {% for key, value in env_vars.items() %}
       - name: {{ key }}
         value: "{{ value }}"
     {% endfor %}
+  {% endif %}

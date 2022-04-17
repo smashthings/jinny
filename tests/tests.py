@@ -4,6 +4,9 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/jinny')))
 
+import yaml
+import traceback
+import subprocess
 
 import jinny
 import jinny_merging
@@ -12,11 +15,21 @@ import jinny_logging
 jinny_merging.VerboseSetting = 2
 jinny_merging.LoggingFunction = jinny_logging.Log
 
+##########################################
+# Paths
 currentDir = os.path.abspath(os.path.dirname(__file__))
+jinnyDir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/jinny'))
+assetsDir = f"{currentDir}/test_assets"
+
+##########################################
+# Helpers
+def RunCmd(listOfCommands:list):
+  print(f'Running command: {" ".join(listOfCommands)}')
+  cmd = subprocess.run(list(listOfCommands), shell=False, cwd=currentDir, capture_output=True)
+  return (cmd.returncode, cmd.stdout.decode('utf-8'), cmd.stderr.decode('utf-8'))
 
 ##########################################
 # Merge Tests
-
 def test_combine_lists():
   jinny_merging.CombineLists = True
   res = jinny_merging.CombineValues(["one", "two"], ["ay", "be"], 'test_combine_lists')
@@ -169,7 +182,56 @@ def test_generated_nest():
   res = jinny_merging.GenerateNestedDict(["nest_one", "nest_two", "nest_three", "key"], True)
   assert res["nest_one"]["nest_two"]["nest_three"]["key"] == True
 
-def test_provided_template():
-  with open()
-  templ = f"{currentDir}/test_assets/sample_template.yml"
-  tmplClass = jinny.TemplateHandler()
+
+##########################################
+# Templating
+def test_provided_template_with_basic_inputs():
+  templFile = f"{assetsDir}/sample_template.yml"
+  with open(templFile) as f:
+    templData = f.read()
+  tmplClass = jinny.TemplateHandler(templateName="test_provided_template_with_basic_inputs", rawString=templData)
+  vals = {
+    "release_name": "testing",
+    "namespace": "default",
+    "listening_port": 5000,
+    "nodeport": 32010,
+    "ports": {
+      "web": 80,
+      "app-port": 5000
+    },
+    "common_labels": {
+      "app": "testing-app",
+      "version": "latest"
+    }
+  }
+
+  tmplClass.Render(vals)
+  res = tmplClass.result
+
+  try:
+    assertingYaml = yaml.load_all(res, Loader=yaml.FullLoader)
+  except Exception as e:
+    execDetails = sys.exc_info()
+    print(f"Failed to output to yaml with exception:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}")
+    print(res)
+    assert False
+  assert True
+
+##########################################
+# CLI
+def test_cli_with_values():
+  templFile = f"{assetsDir}/sample_template.yml"
+  valuesFile = f'{assetsDir}/sample_values.yml'
+  status, stdout, stderr = RunCmd([
+    "python3",
+    f'{jinnyDir}/jinny.py',
+    "-i",
+    valuesFile,
+    "-t",
+    templFile
+    ])
+  
+  print(stdout)
+  print(stderr)
+  print(status)
+  assert status == 0
