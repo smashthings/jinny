@@ -75,19 +75,19 @@ def CombineValues(originalVals, newVals, sourceName:str):
 
     return workingVals
 
-def SetNestedResource(baseResource, path:list, value):
+def SetNestedValue(baseResource, path:list, value):
   if VerboseSetting > 1:
-    LoggingFunction(f'SetNestedResource(): => Handling path {".".join(path)} of {len(path)} items')
+    LoggingFunction(f'SetNestedValue(): => Handling path {".".join(path)} of {len(path)} items')
   currentTier = baseResource
   for index, element in enumerate(path):
     currentType = type(currentTier)
     if index + 1 >= len(path):
-      LoggingFunction(f'SetNestedResource(): => On last element ({index+1}/{len(path)}), setting "{element}" to "{value}"')
+      LoggingFunction(f'SetNestedValue(): => On last element ({index+1}/{len(path)}), setting "{element}" to "{value}"')
       currentTier[element] = value
       break
     if currentType == dict:
       if element in currentTier:
-        LoggingFunction(f'SetNestedResource(): => Moving to nested dictionary "{element}"')
+        LoggingFunction(f'SetNestedValue(): => Moving to nested dictionary "{element}"')
         currentTier = currentTier[element]
       else:
         raise Exception(f"Could not find {element} in {baseResource} after cycling through {', '.join(path[:index])}")
@@ -99,7 +99,7 @@ def SetNestedResource(baseResource, path:list, value):
         LoggingFunction(f"Found a list at location '{'.'.join(path[:index])}' but did not find a number integer in the targeting, ie failed to convert the next element in the path '{element}' to an integer so can't target the list, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{execDetails[2]}", quitWithStatus=1)
       if location + 1 > len(currentTier):
         LoggingFunction(f"Found a list at location '{'.'.join(path[:index])}' that is {len(currentTier)} items long, however '{location}' is not an existing element, hence can't be targeted! Details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{execDetails[2]}", quitWithStatus=1)
-      LoggingFunction(f'SetNestedResource(): => Moving to nested list property index "{location}"')
+      LoggingFunction(f'SetNestedValue(): => Moving to nested list property index "{location}"')
       currentTier = currentTier[location]
     elif currentType == str or currentType == int or currentType == bool or currentType == float or currentType == complex:
       if index + 1 >= len(path):

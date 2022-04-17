@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ release_name }}
+  namespace: {{ namespace }}
+spec:
+  ports:
+  {% for key,value in ports.items() %}
+  - name: {{ key }}
+    port: {{ value }}
+  {% endfor %}
+  selector:
+  {{ common_labels | indent(4) }}
+---
+{% if nodeport is defined %}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ release_name }}
+  namespace: {{ namespace }}
+spec:
+  type: NodePort
+  ports:
+  - nodePort: {{ nodeport }}
+    port: {{ ports.items()[0][1] }}
+    targetPort: {{ ports.items()[0][1] }}
+  selector:
+    {{ common_labels | indent(4) }}
+---
+{% endif %}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ release_name }}
+  namespace: {{ namespace }}
+  labels:
+    {{ common_labels | indent(4) }}
+spec:
+  terminationGracePeriodSeconds: 3
+  containers:
+  - name: {{ release_name }}
+    image: {{ image_name }}
+    ports:
+    - name: web
+      containerPort: {{ listening_port }}
+    env:
+    {% for key, value in env_vars.items() %}
+      - name: {{ key }}
+        value: "{{ value }}"
+    {% endfor %}

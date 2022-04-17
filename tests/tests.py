@@ -5,11 +5,14 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/jinny')))
 
 
+import jinny
 import jinny_merging
 import jinny_logging
 
 jinny_merging.VerboseSetting = 2
 jinny_merging.LoggingFunction = jinny_logging.Log
+
+currentDir = os.path.abspath(os.path.dirname(__file__))
 
 ##########################################
 # Merge Tests
@@ -155,9 +158,9 @@ def test_targeting_nested_resources():
       }
     ]
   }
-  jinny_merging.SetNestedResource(origResource, ["dicts", "0", "nest_one", "mushrooms"], False)
-  jinny_merging.SetNestedResource(origResource, ["dicts", "1", "added_resource"], 4)
-  jinny_merging.SetNestedResource(origResource, ["dicts", "1", "toppings", "0", "dict_dict", "other"], False)
+  jinny_merging.SetNestedValue(origResource, ["dicts", "0", "nest_one", "mushrooms"], False)
+  jinny_merging.SetNestedValue(origResource, ["dicts", "1", "added_resource"], 4)
+  jinny_merging.SetNestedValue(origResource, ["dicts", "1", "toppings", "0", "dict_dict", "other"], False)
   assert origResource["dicts"][0]['nest_one']['mushrooms'] == False
   assert origResource["dicts"][1]['added_resource'] == 4
   assert origResource["dicts"][1]['toppings'][0]['dict_dict']['other'] == False
@@ -165,3 +168,8 @@ def test_targeting_nested_resources():
 def test_generated_nest():
   res = jinny_merging.GenerateNestedDict(["nest_one", "nest_two", "nest_three", "key"], True)
   assert res["nest_one"]["nest_two"]["nest_three"]["key"] == True
+
+def test_provided_template():
+  with open()
+  templ = f"{currentDir}/test_assets/sample_template.yml"
+  tmplClass = jinny.TemplateHandler()
