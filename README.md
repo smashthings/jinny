@@ -1,3 +1,5 @@
+![jinny](logo.png?raw=true)
+
 # jinny
 
 Jinny is a templating tool for jinja templates. It can be used for a number of things but was created from a DevOps perspective to aid in configuration management for scaled deployments instead of using tools like Helm, Kustomize, jinja-cli, etc.
