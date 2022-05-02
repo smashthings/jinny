@@ -35,8 +35,8 @@ def ArgParsing():
   parser.add_argument("-ds", "--dict-separator", help="When providing targeting on the CLI or via environment variables, choose a particular separating character for targeting nested elements, defaults to '.'", default=".", type=str)
 
   # Jinja Specific Arguments
-  parser.add_argument("--j-block-start", help="Change the characters that indicate the start of a block, default '{%'", type=str, default="{%")
-  parser.add_argument("--j-block-end", help="Change the characters that indicate the end of a block, default '%}'", type=str, default="%}")
+  parser.add_argument("--j-block-start", help="Change the characters that indicate the start of a block, default '{%%'", type=str, default="{%")
+  parser.add_argument("--j-block-end", help="Change the characters that indicate the end of a block, default '%%}'", type=str, default="%}")
   parser.add_argument("--j-variable-start", help="Change the characters that indicate the start of a variable, default '{{'", type=str, default="{{")
   parser.add_argument("--j-variable-end", help="Change the characters that indicate the end of a variable, default '}}'", type=str, default="}}")
   parser.add_argument("--j-comment-start", help="Change the characters that indicate the start of a comment inside of a template, default '{#'", type=str, default="{#")

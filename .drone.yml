@@ -1,0 +1,60 @@
+kind: pipeline
+type: docker
+name: jinny
+
+clone:
+  disable: true
+
+steps:
+- name: clone
+  image: smasherofallthings/debug
+  commands:
+  - GIT_SSL_NO_VERIFY=true git clone -v $DRONE_GIT_HTTP_URL .
+  - GIT_SSL_NO_VERIFY=true git checkout $DRONE_COMMIT
+
+- name: Run tests
+  image: smasherofallthings/python-fe
+  commands:
+  - pytest tests/tests.py
+
+- name: Docker Image
+  image: smasherofallthings/python-fe
+  commands:
+  - docker build -t smasherofallthings/jinny:latest "smasherofallthings/jinny:$$(date '+%Y-%m-%d')-b$${DRONE_BUILD_NUMBER}" . && docker push smasherofallthings/jinny --all-tags
+  volumes:
+  - name: docker-socket
+    path: /var/run/docker.sock
+  - name: docker-creds
+    path: /root/.docker/config.json
+
+- name: Push repo to public repos
+  image: smasherofallthings/debug
+  commands:
+  - git checkout $DRONE_BRANCH
+  - ls -al /root/.ssh
+  - git remote add github git@github.com:smashthings/jinny.git
+  - git push -u github
+  - git remote add gitlab git@gitlab.com:scripteddog/jinny.git
+  - git push -u gitlab
+  volumes:
+  - name: ssh-creds
+    path: /root/.ssh/
+
+volumes:
+- name: docker-socket
+  host:
+    path: /var/run/docker.sock
+- name: docker-creds
+  host:
+    path: /root/.docker/config.json
+- name: ssh-creds
+  host:
+    path: /root/.ssh/
+
+trigger:
+  branch:
+    - master
+    - pipeline
+  event:
+    - push
+
