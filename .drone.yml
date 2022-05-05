@@ -20,7 +20,7 @@ steps:
 - name: Docker Image
   image: smasherofallthings/python-fe
   commands:
-  - docker build -t smasherofallthings/jinny:latest "smasherofallthings/jinny:$$(date '+%Y-%m-%d')-b$${DRONE_BUILD_NUMBER}" . && docker push smasherofallthings/jinny --all-tags
+  - docker build -t smasherofallthings/jinny:latest -t "smasherofallthings/jinny:$$(date '+%Y-%m-%d')-b$${DRONE_BUILD_NUMBER}" . && docker push smasherofallthings/jinny --all-tags
   volumes:
   - name: docker-socket
     path: /var/run/docker.sock
