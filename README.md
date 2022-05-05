@@ -43,8 +43,8 @@ My Windows days are behind me and I'm not coming back to it. If you'll like to P
 *Can I donate or support?*
 Nah. I'm good. If jinny really helps and you want to right the balance then please donate to the Guide Dogs UK or Australia or Tassie. With some time, energy and some delicious dog treats they give people back their independence, it's the best ROI I know of.
 
-https://www.guidedogs.org.uk
-https://guidedogs.com.au
+https://www.guidedogs.org.uk \
+https://guidedogs.com.au \
 https://guidedogstas.com.au/supportus/donate/
 
 *Can you offer support?*
