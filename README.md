@@ -1,4 +1,7 @@
-![jinny](logo.png?raw=true)
+
+<p align="center">
+  <img width="600" height="200" src="https://raw.githubusercontent.com/smashthings/jinny/pipeline/logo.png">
+</p>
 
 # jinny
 
@@ -25,7 +28,9 @@ jinny -i values.yml values-override.json -t template1.tmpl template2.tmpl
 ```
 
 ## Packages used
-TBD
+Check out src/jinny/requirements.txt
+
+As of May 2022 only PyYAML and Jinja2 are used
 
 ## FAQs
 
