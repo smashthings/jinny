@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img width="600" height="200" src="https://raw.githubusercontent.com/smashthings/jinny/pipeline/logo.png">
+  <img width="317" height="500" src="https://raw.githubusercontent.com/smashthings/jinny/pipeline/logo.png">
 </p>
 
 # jinny
