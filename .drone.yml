@@ -14,8 +14,9 @@ steps:
 
 - name: Run tests
   image: smasherofallthings/python-fe
+  pull: always
   commands:
-  - pytest tests/tests.py
+  - python3 -m pytest tests/tests.py
 
 - name: Docker Image
   image: smasherofallthings/python-fe
