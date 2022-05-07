@@ -12,8 +12,13 @@ import jinja2
 import argparse
 import traceback
 
-import jinny_logging
-import jinny_merging
+from . import jinny_logging
+from . import jinny_merging
+
+baseDir = os.path.dirname(os.path.abspath(__file__))
+
+with open(f'{baseDir}/version') as f:
+  __version__ = f.read()
 
 ##########################################
 # Variables
@@ -33,6 +38,7 @@ def ArgParsing():
   parser.add_argument("-t", "--templates", help="Add one or more file locations that contain the templates themselves", action="append", nargs="*", required=True)
   parser.add_argument("-ie", "--ignore-env-vars", help="Tell jinny to ignore any environment variables that begin with JINNY_, defaults to not ignoring these environment variables and setting them at the highest priority", action="store_true")
   parser.add_argument("-ds", "--dict-separator", help="When providing targeting on the CLI or via environment variables, choose a particular separating character for targeting nested elements, defaults to '.'", default=".", type=str)
+  parser.add_argument('--version', action='version', version=__version__)
 
   # Jinja Specific Arguments
   parser.add_argument("--j-block-start", help="Change the characters that indicate the start of a block, default '{%%'", type=str, default="{%")
@@ -51,7 +57,6 @@ def ArgParsing():
   parser.add_argument("-s", "--stdout-seperator", help="Place a seperator on it's own individual new line between successfully templated template when printing to stdout, eg '---' for yaml", type=str, default='')
   parser.add_argument("-c", "--combine-lists", help="When cascading values across multiple files and encountering two lists with the same key, choose to combine the old list with the new list rather than have the new list replace the old", action="store_false")
 
-  print(sys.argv)
   args = parser.parse_args()
 
   if args.combine_lists:

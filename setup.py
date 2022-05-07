@@ -5,14 +5,15 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 scriptDir = os.path.abspath(os.path.dirname(__file__))
-version = "0.0.1"
-if os.path.exists(f'{scriptDir}/version'):
-    with open(f'{scriptDir}/version', 'r') as f:
-        version = f.read()
+__version__ = "0.0.1"
+versionFile = f'{scriptDir}/src/jinny/version'
+if os.path.exists(versionFile):
+    with open(versionFile) as f:
+        __version__ = f.read()
 
 setuptools.setup(
     name="jinny",
-    version=version,
+    version=__version__,
     author="Andrew Southall",
     author_email="bots@trulydigital.net",
     description="A practical templating tool for Jinja templates",
@@ -28,6 +29,7 @@ setuptools.setup(
         "Operating System :: POSIX :: Other",
     ],
     package_dir={"": "src"},
+    package_data={"":["version"]},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
     keywords="jinja,template,jinja2,kubernetes",

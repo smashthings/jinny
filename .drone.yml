@@ -27,15 +27,27 @@ steps:
   - name: docker-creds
     path: /root/.docker/config.json
 
-- name: Upload to PyPI
+- name: Testing package
+  image: smasherofallthings/python-fe
+  commands:
+    - python3 setup.py sdist
+    - python3 -m pip install "dist/jinny-$$(cat src/jinny/version).tar.gz"
+    - $${HOME}/.local/bin/jinny --version
+
+- name: Upload to PyPI on tag change
   image: smasherofallthings/python-fe
   environment:
     TWINE_USERNAME: "__token__"
     TWINE_PASSWORD:
       from_secret: PyPIToken
   commands:
-    - python3 setup.py sdist
+    # - python3 setup.py sdist
     - twine upload dist/*
+  trigger:
+    ref:
+      include:
+        - refs/tags/**
+
 
 - name: Push repo to public repos
   image: smasherofallthings/debug
