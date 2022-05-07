@@ -9,11 +9,8 @@ import traceback
 import subprocess
 
 import jinny
-import jinny_merging
-import jinny_logging
 
-jinny_merging.VerboseSetting = 2
-jinny_merging.LoggingFunction = jinny_logging.Log
+jinny.VerboseSetting = 2
 
 ##########################################
 # Paths
@@ -31,17 +28,17 @@ def RunCmd(listOfCommands:list):
 ##########################################
 # Merge Tests
 def test_combine_lists():
-  jinny_merging.CombineLists = True
-  res = jinny_merging.CombineValues(["one", "two"], ["ay", "be"], 'test_combine_lists')
+  jinny.CombineLists = True
+  res = jinny.CombineValues(["one", "two"], ["ay", "be"], 'test_combine_lists')
   assert res == ["one", "two", "ay", "be"]
 
 def test_replace_lists():
-  jinny_merging.CombineLists = False
-  res = jinny_merging.CombineValues(["one", "two"], ["ay", "be"], 'test_replace_lists')
+  jinny.CombineLists = False
+  res = jinny.CombineValues(["one", "two"], ["ay", "be"], 'test_replace_lists')
   assert res == ["ay", "be"]
 
 def test_merging_dicts():
-  res = jinny_merging.CombineValues({
+  res = jinny.CombineValues({
     "first": True
   }, {
     "second": "please"
@@ -50,7 +47,7 @@ def test_merging_dicts():
   assert res["second"] == "please"
 
 def test_nested_dicts():
-  res = jinny_merging.CombineValues({
+  res = jinny.CombineValues({
     "first": True,
     "nest_one": {
       "mushrooms": 4,
@@ -97,7 +94,7 @@ def test_nested_dicts():
   assert res["nest_one"]["nest_two"] == None
 
 def test_mega_nest():
-  res = jinny_merging.CombineValues({
+  res = jinny.CombineValues({
     "nest_one": {
       "nest_two": {
         "nest_three": {
@@ -171,15 +168,15 @@ def test_targeting_nested_resources():
       }
     ]
   }
-  jinny_merging.SetNestedValue(origResource, ["dicts", "0", "nest_one", "mushrooms"], False)
-  jinny_merging.SetNestedValue(origResource, ["dicts", "1", "added_resource"], 4)
-  jinny_merging.SetNestedValue(origResource, ["dicts", "1", "toppings", "0", "dict_dict", "other"], False)
+  jinny.SetNestedValue(origResource, ["dicts", "0", "nest_one", "mushrooms"], False)
+  jinny.SetNestedValue(origResource, ["dicts", "1", "added_resource"], 4)
+  jinny.SetNestedValue(origResource, ["dicts", "1", "toppings", "0", "dict_dict", "other"], False)
   assert origResource["dicts"][0]['nest_one']['mushrooms'] == False
   assert origResource["dicts"][1]['added_resource'] == 4
   assert origResource["dicts"][1]['toppings'][0]['dict_dict']['other'] == False
 
 def test_generated_nest():
-  res = jinny_merging.GenerateNestedDict(["nest_one", "nest_two", "nest_three", "key"], True)
+  res = jinny.GenerateNestedDict(["nest_one", "nest_two", "nest_three", "key"], True)
   assert res["nest_one"]["nest_two"]["nest_three"]["key"] == True
 
 

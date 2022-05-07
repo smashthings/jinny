@@ -12,9 +12,6 @@ import jinja2
 import argparse
 import traceback
 
-from . import jinny_logging
-from . import jinny_merging
-
 baseDir = os.path.dirname(os.path.abspath(__file__))
 
 with open(f'{baseDir}/version') as f:
@@ -25,6 +22,147 @@ with open(f'{baseDir}/version') as f:
 
 globalAllTemplatesProcessed = {}
 baseJ2Env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
+CombineLists = False
+VerboseSetting = 0
+VerboseSetting = True
+LoggingLocation = "/dev/stdout"
+
+##########################################
+# Machinery
+def CombineValues(originalVals, newVals, sourceName:str):
+  originalType = type(originalVals)
+  newType = type(newVals)
+  if VerboseSetting > 0:
+    Log(f'CombineValues(): handling {sourceName}, original item = {originalType!s}, new item = {newType!s}')
+
+  # Easy wins
+  if originalType == list and newType == list:
+    if VerboseSetting > 0:
+      Log(f'CombineValues(): found two lists, {"combining and returning" if CombineLists else "replacing old list with new one"}')
+    return originalVals + newVals if CombineLists else newVals
+
+  if originalType == None:
+    if VerboseSetting > 0:
+      Log(f'CombineValues(): original item is None, replacing with new item')
+    return newVals
+  
+  if newType == None:
+    if VerboseSetting > 0:
+      Log(f'CombineValues(): new item is None, returning None')
+    return None
+
+  # More Common
+  if originalType == dict and newType == dict:
+    if VerboseSetting > 1:
+      Log(f'CombineValues(): Handling a dict merge')
+    workingVals = originalVals.copy()
+    origKeys = originalVals.keys()
+    for eleKey, eleVal in newVals.items():
+      if eleKey not in origKeys:
+        if VerboseSetting > 1:
+          Log(f'CombineValues(): => Adding new key "{eleKey}"')
+        workingVals[eleKey] = eleVal
+        continue
+
+      newType = type(eleVal)
+      oldType = type(originalVals[eleKey])
+      if newType == str or newType == int or newType == bool or newType == float or newType == complex:
+        if VerboseSetting > 1:
+          Log(f'CombineValues(): => Updated value for "{eleKey}"')
+        workingVals[eleKey] = eleVal
+        continue
+      if oldType == list and newType == list:
+        if originalVals[eleKey] == newVals[eleKey]:
+          if VerboseSetting > 1:
+            Log(f'CombineValues(): => Key "{eleKey}" is the same list in both old and new, continuing')
+        else:
+          if VerboseSetting > 1:
+            Log(f'CombineValues(): => Key "{eleKey}" is an altered list, {"combining and continuing" if CombineLists else "replacing old list with new one"}')
+          workingVals[eleKey] = originalVals[eleKey] + newVals[eleKey] if CombineLists else newVals[eleKey]
+        continue
+
+      if oldType == dict and newType != dict:
+        if VerboseSetting > 1:
+          Log(f'CombineValues(): => Key "{eleKey}" was a dict but updated to be a {newType!s}, replacing')
+        workingVals[eleKey] = newVals[eleKey]
+        continue
+
+      if newType == dict and newType == dict:
+        if VerboseSetting > 1:
+          Log(f'CombineValues(): => Key "{eleKey}" is a dict updated with another dict, recursively calling CombineValues to handle')
+        res = CombineValues(originalVals[eleKey], newVals[eleKey], sourceName)
+        workingVals[eleKey] = res
+
+    return workingVals
+
+def SetNestedValue(baseResource, path:list, value):
+  if VerboseSetting > 1:
+    Log(f'SetNestedValue(): => Handling path {".".join(path)} of {len(path)} items')
+  currentTier = baseResource
+  for index, element in enumerate(path):
+    currentType = type(currentTier)
+    if index + 1 >= len(path):
+      Log(f'SetNestedValue(): => On last element ({index+1}/{len(path)}), setting "{element}" to "{value}"')
+      currentTier[element] = value
+      break
+    if currentType == dict:
+      if element in currentTier:
+        Log(f'SetNestedValue(): => Moving to nested dictionary "{element}"')
+        currentTier = currentTier[element]
+      else:
+        raise Exception(f"Could not find {element} in {baseResource} after cycling through {', '.join(path[:index])}")
+    elif currentType == list:
+      try:
+        location = int(element)
+      except:
+        execDetails = sys.exc_info()
+        Log(f"Found a list at location '{'.'.join(path[:index])}' but did not find a number integer in the targeting, ie failed to convert the next element in the path '{element}' to an integer so can't target the list, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{execDetails[2]}", quitWithStatus=1)
+      if location + 1 > len(currentTier):
+        Log(f"Found a list at location '{'.'.join(path[:index])}' that is {len(currentTier)} items long, however '{location}' is not an existing element, hence can't be targeted! Details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{execDetails[2]}", quitWithStatus=1)
+      Log(f'SetNestedValue(): => Moving to nested list property index "{location}"')
+      currentTier = currentTier[location]
+    elif currentType == str or currentType == int or currentType == bool or currentType == float or currentType == complex:
+      if index + 1 >= len(path):
+        raise Exception(f"Hit a non-nested type of {currentType} at {index} / {len(path)} after cycling through {', '.join(path[:index])}.\nFull path is {', '.join(path)}.\nTarget Object is:\n{yaml.dump(baseResource)}".encode().decode('unicode-escape'))
+
+def GenerateNestedDict(path:list, value):
+  if VerboseSetting > 1:
+    Log(f'GenerateNestedDict(): => Generating a nested dict {len(path) - 1} levels deep setting "{path[len(path)-1]}" to "{value}"')
+  replicatedObj = {}
+  target = replicatedObj
+  for index, item in enumerate(path):
+    if index + 1 == len(path):
+      target[item] = value
+      break
+    target[item] = {}
+    target = target[item]
+  return replicatedObj
+
+
+##########################################
+# Logging
+def Log(message, quit:bool=False, quitWithStatus:int=1, AlwaysVerbose:bool=True):
+  if AlwaysVerbose == False and VerboseSetting == False:
+    return
+  if type(message) is dict:
+    logToFile(LoggingLocation, f'<{TimeStamp()}> - ' + "\n => ".join([k + ": " + str(message[k]) for k in message]))
+  else:
+    logToFile(LoggingLocation, f'<{TimeStamp()}> - {message}')
+
+  if quit or quitWithStatus > 1:
+    exit(1 * quitWithStatus)
+
+##############################################
+# Internal Functions
+def TimeStamp():
+  return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
+
+def logToFile(path:str, msg:str):
+  if path == "/dev/stdout":
+    sys.stdout.write(msg + "\n")
+  else:
+    with open(path, 'a') as f:
+      f.write(msg + "\n")
 
 ##########################################
 # Argparsing
@@ -60,15 +198,13 @@ def ArgParsing():
   args = parser.parse_args()
 
   if args.combine_lists:
-    jinny_merging.CombineLists = True
+    CombineLists = True
 
   if args.verbose:
-    jinny_merging.VerboseSetting = 1
-    jinny_merging.LoggingFunction = jinny_logging.Log
+    VerboseSetting = 1
 
   if args.super_verbose:
-    jinny_merging.VerboseSetting = 2
-    jinny_merging.LoggingFunction = jinny_logging.Log
+    VerboseSetting = 2
 
   # jinja2.Environment(bl)
   baseJ2Env = jinja2.Environment(
@@ -100,7 +236,7 @@ class TemplateHandler():
     if path != "":
       self.name = os.path.abspath(path)
       if not os.path.exists(path):
-        jinny_logging.Log(f"Failed to read template at path '{path}', cannot load in desired template!", quitWithStatus=1)
+        Log(f"Failed to read template at path '{path}', cannot load in desired template!", quitWithStatus=1)
       with open(path, "r") as f:
         self.templateData = f.read()
         self.basename = os.path.basename(self.name)
@@ -115,7 +251,7 @@ class TemplateHandler():
       self.loadedTemplate = baseJ2Env.from_string(self.templateData)
     except Exception as e:
       execDetails = sys.exc_info()
-      jinny_logging.Log(f"Failed to load template at '{path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
+      Log(f"Failed to load template at '{path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
     if addToGlobal:
       globalAllTemplatesProcessed[self.name] = self
@@ -125,7 +261,7 @@ class TemplateHandler():
       self.result = self.loadedTemplate.render(values)
     except Exception as e:
       execDetails = sys.exc_info()
-      jinny_logging.Log(f"Failed to render template at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
+      Log(f"Failed to render template at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
 def ParseValues(*AscendingPriorityInputObjects):
   if len(AscendingPriorityInputObjects) == 0:
@@ -135,9 +271,9 @@ def ParseValues(*AscendingPriorityInputObjects):
     t = type(thing)
     if t == list:
       for listItem in thing:
-        returningThing = jinny_merging.CombineValues(returningThing, listItem, fullPath)
+        returningThing = CombineValues(returningThing, listItem, fullPath)
     else:
-      returningThing = jinny_merging.CombineValues(returningThing, thing, fullPath)
+      returningThing = CombineValues(returningThing, thing, fullPath)
   return returningThing
 
 def SetJ2Env(**args):
@@ -165,7 +301,7 @@ def Main():
     for inputsPathChild in inputsPath:
       fullPath = os.path.abspath(inputsPathChild)
       if not os.path.exists(inputsPathChild):
-        jinny_logging.Log(f"Could not open inputs file at path '{inputsPathChild}'", quitWithStatus=1)
+        Log(f"Could not open inputs file at path '{inputsPathChild}'", quitWithStatus=1)
     
       matchedType = ""
       finalObj = None
@@ -188,9 +324,9 @@ def Main():
           pass
 
       if matchedType == "":
-        jinny_logging.Log(f"Could not load inputs file '{inputsPathChild}' as either a json or a yaml file, please inspect!", quitWithStatus=1)
+        Log(f"Could not load inputs file '{inputsPathChild}' as either a json or a yaml file, please inspect!", quitWithStatus=1)
 
-      overallValues = jinny_merging.CombineValues(overallValues, finalObj, fullPath)
+      overallValues = CombineValues(overallValues, finalObj, fullPath)
 
   if not args.ignore_env_vars:
     foundVars = {}
@@ -200,7 +336,7 @@ def Main():
 
     for path, val in enumerate(foundVars):
       nestedVal = path.split(args.dict_separator)
-      jinny_merging.SetNestedValue(baseResource=overallValues, path=nestedVal, value=val)
+      SetNestedValue(baseResource=overallValues, path=nestedVal, value=val)
 
   ##########################################
   # Templating
