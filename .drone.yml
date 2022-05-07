@@ -36,21 +36,6 @@ steps:
     - which jinny
     - jinny --version
 
-- name: Upload to PyPI on tag change
-  image: smasherofallthings/python-fe
-  environment:
-    TWINE_USERNAME: "__token__"
-    TWINE_PASSWORD:
-      from_secret: PyPIToken
-  commands:
-    - python3 setup.py sdist
-    - twine upload dist/*
-  trigger:
-    ref:
-      include:
-        - refs/tags/**
-
-
 - name: Push repo to public repos
   image: smasherofallthings/debug
   commands:
@@ -83,3 +68,31 @@ trigger:
     - push
 
 
+---
+kind: pipeline
+type: docker
+name: jinny-pypi
+
+clone:
+  disable: true
+
+steps:
+- name: clone
+  image: smasherofallthings/debug
+  commands:
+  - GIT_SSL_NO_VERIFY=true git clone -v $DRONE_GIT_HTTP_URL .
+  - GIT_SSL_NO_VERIFY=true git checkout $DRONE_COMMIT
+
+- name: Upload to PyPI on tag change
+  image: smasherofallthings/python-fe
+  environment:
+    TWINE_USERNAME: "__token__"
+    TWINE_PASSWORD:
+      from_secret: PyPIToken
+  commands:
+    - python3 setup.py sdist
+    - twine upload dist/*
+
+trigger:
+  event:
+    - tag
