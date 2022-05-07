@@ -27,6 +27,16 @@ steps:
   - name: docker-creds
     path: /root/.docker/config.json
 
+- name: Upload to PyPI
+  image: smasherofallthings/python-fe
+  environment:
+    TWINE_USERNAME: "__token__"
+    TWINE_PASSWORD:
+      from_secret: PyPIToken
+  commands:
+    - python3 setup.py sdist
+    - twine upload dist/*
+
 - name: Push repo to public repos
   image: smasherofallthings/debug
   commands:

@@ -140,7 +140,8 @@ def SetJ2Env(**args):
 
 ##########################################
 # Direct function
-if __name__ == "__main__":
+
+def Main():
   ##########################################
   # Parse CLI Arguments
   args = ArgParsing()
@@ -210,3 +211,6 @@ if __name__ == "__main__":
 
   if not args.dump_to_dir:
     print(f'\n{args.stdout_seperator}\n'.join(stdoutDump))
+
+if __name__ == "__main__":
+  Main()

@@ -1,3 +1,6 @@
+> :warning: **jinny is under active development and is not yet 1.0**
+> Packages may not work, code may not install, etc. Bear with us!
+
 
 <p align="center">
   <img width="317" height="500" src="https://raw.githubusercontent.com/smashthings/jinny/pipeline/logo.png">
