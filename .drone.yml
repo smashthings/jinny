@@ -33,7 +33,8 @@ steps:
   commands:
     - python3 setup.py sdist
     - python3 -m pip install "dist/jinny-$$(cat src/jinny/version).tar.gz"
-    - $${HOME}/.local/bin/jinny --version
+    - ls -la $${HOME}/.local/bin/jinny
+    - python3 $${HOME}/.local/bin/jinny --version
 
 - name: Upload to PyPI on tag change
   image: smasherofallthings/python-fe
@@ -42,7 +43,7 @@ steps:
     TWINE_PASSWORD:
       from_secret: PyPIToken
   commands:
-    # - python3 setup.py sdist
+    - python3 setup.py sdist
     - twine upload dist/*
   trigger:
     ref:
