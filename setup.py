@@ -14,7 +14,7 @@ if os.path.exists(versionFile):
 setuptools.setup(
     name="jinny",
     version=__version__,
-    author="Andrew Southall",
+    author="smasherofallthings",
     author_email="bots@trulydigital.net",
     description="A practical templating tool for Jinja templates",
     long_description=long_description,
