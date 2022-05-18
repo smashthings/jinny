@@ -1,0 +1,8 @@
+nodeport: 11111
+ports:
+  web: 80
+  app-port: 5000
+  another-one: 8000
+common_labels:
+  version: "super-latest"
+

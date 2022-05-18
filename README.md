@@ -1,5 +1,4 @@
-> :warning: **jinny is under active development and is not yet 1.0**
-> Packages may not work, code may not install, etc. Bear with us!
+> :warning: **jinny is now in beta, it should work but don't bet a kidney on it**
 
 
 <p align="center">

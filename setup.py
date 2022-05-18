@@ -14,14 +14,15 @@ if os.path.exists(versionFile):
 setuptools.setup(
     name="jinny",
     version=__version__,
-    author="Andrew Southall",
+    author="smasherofallthings",
     author_email="bots@trulydigital.net",
     description="A practical templating tool for Jinja templates",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://gitlab.com/scripteddog/jinny",
+    url="",
     project_urls={
-        "Source": "https://github.com/smashthings/jinny"
+        "Github": "https://github.com/smashthings/jinny",
+        "Gitlab": "https://gitlab.com/scripteddog/jinny",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -32,7 +33,7 @@ setuptools.setup(
     package_data={"":["version"]},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
-    keywords="jinja,template,jinja2,kubernetes",
+    keywords="jinja,template,jinja2,kubernetes,cli",
     license="GPLv3",
     entry_points={
         'console_scripts': [

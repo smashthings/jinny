@@ -24,7 +24,6 @@ globalAllTemplatesProcessed = {}
 baseJ2Env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
 CombineLists = False
 VerboseSetting = 0
-VerboseSetting = True
 LoggingLocation = "/dev/stdout"
 
 ##########################################
@@ -33,6 +32,7 @@ def CombineValues(originalVals, newVals, sourceName:str):
   originalType = type(originalVals)
   newType = type(newVals)
   if VerboseSetting > 0:
+    print(VerboseSetting)
     Log(f'CombineValues(): handling {sourceName}, original item = {originalType!s}, new item = {newType!s}')
 
   # Easy wins
@@ -167,7 +167,33 @@ def logToFile(path:str, msg:str):
 ##########################################
 # Argparsing
 def ArgParsing():
-  parser = argparse.ArgumentParser(description="Handles templating for jinja templates at a large scale and with multiple inputs")
+  parser = argparse.ArgumentParser(description='''Jinny handles complext templating for jinja templates at a large scale and with multiple inputs and with a decent amount of customisation available.
+
+Commonly you'll want to utilse very straight forward features, such as:
+
+=> Templating multiple templates with a single input file:
+$ jinny -t template-1.txt template-2.txt -i inputs.yml
+
+=> Templating any number of templates with two input files where base-values.yml provides all the base values and any values in overrides.json acts as an override:
+$ jinny -t template.yml -i base-values.yml overrides.json
+
+=> Add even more overrides via environment variables, so your pipelines can completely replace any bad value:
+$ JINNY_overridden_value="top-priority" jinny -t template.yml -i base-values.yml overrides.json
+
+=> Pump all your files to a single stdout stream with a separator so different files are clearly marked:
+$ jinny -t template-1.yml template-2.yml -i inputs.json -s '---'
+
+=> Dump all your templated files into a directory for capture
+$ jinny -t template-1.yml template-2.yml -i inputes.json -d /path/to/directory
+$ kubectl diff -f /path/to/directory
+$ kubectl apply --server-dry-run -f /path/to/directory
+
+=> Pipe jinny to kubectl for appropriate templating without having to result to Helm
+$ jinny -t template-1.yml -i inputs.json | kubectl apply -f -
+
+You can modify jinja's environment settings via the rest of the command line options. Please note that jinny is opinionated and automatically strips line space from templates. You can, of course, turn this off!
+
+''')
 
   # Core arguments
   parser.add_argument("-v", "--verbose", help="Set output to verbose", action="store_true")
