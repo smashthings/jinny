@@ -2,13 +2,14 @@
 
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/jinny')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/jinny')))
 
 import yaml
 import traceback
 import subprocess
 
 import jinny
+import inspect
 
 jinny.VerboseSetting = 2
 

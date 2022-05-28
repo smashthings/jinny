@@ -1,6 +1,6 @@
 kind: pipeline
 type: docker
-name: jinny
+name: master
 
 clone:
   disable: true
@@ -96,3 +96,30 @@ steps:
 trigger:
   event:
     - tag
+
+---
+kind: pipeline
+type: docker
+name: development
+
+clone:
+  disable: true
+
+steps:
+- name: clone
+  image: smasherofallthings/debug
+  commands:
+  - GIT_SSL_NO_VERIFY=true git clone -v $DRONE_GIT_HTTP_URL .
+  - GIT_SSL_NO_VERIFY=true git checkout $DRONE_COMMIT
+
+- name: Run tests
+  image: smasherofallthings/python-fe
+  pull: always
+  commands:
+  - python3 -m pytest tests/tests.py
+
+trigger:
+  branch:
+    exclude:
+      - master
+      - pipeline

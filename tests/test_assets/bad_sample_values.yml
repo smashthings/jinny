@@ -1,0 +1,13 @@
+release_name: "testing"
+namespace: "default"
+listening_port: 5000
+nodeport: 32010
+--
+  \!{{ this bit isn't acceptable yaml}}
+ports:
+  web: 80
+  app-port: 5000
+common_labels:
+  app: "testing-app"
+  version: "latest"
+

@@ -1,0 +1,6 @@
+{
+  "why": "this is json, but it goes wrong on the next line",
+  111111111######, notexist,
+  [],
+  :
+}
