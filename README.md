@@ -23,10 +23,29 @@ The 2020's of software usually include mashing together different/underlying/pro
 
 For example, Jinny was originally conceived as a way to handle templating of Kubernetes manifests rather than using Helm or other Go templating tools. Helm is overengineered for what I often need and usually comes with unwanted issues such as nuking production environments (your milage may vary). Jinny doesn't attempt Kubernetes package management, whatever that is, and instead just sticks to templating such that you as the Ops engineer can choose how, when or what to apply.
 
-## How to use
+## Usage Examples
 ```
-# Basic use, templating out template1.tmpl and template2.tmpl with the values from values.yml and any values overriden with values from values-override.json
-jinny -i values.yml values-override.json -t template1.tmpl template2.tmpl
+
+=> Templating multiple templates with a single input file:
+$ jinny -t template-1.txt template-2.txt -i inputs.yml
+
+=> Templating any number of templates with two input files where base-values.yml provides all the base values and any values in overrides.json acts as an override:
+$ jinny -t template.yml -i base-values.yml overrides.json
+
+=> Add even more overrides via environment variables, so your pipelines can completely replace any bad value:
+$ JINNY_overridden_value="top-priority" jinny -t template.yml -i base-values.yml overrides.json
+
+=> Pump all your files to a single stdout stream with a separator so different files are clearly marked:
+$ jinny -t template-1.yml template-2.yml -i inputs.json -s '---'
+
+=> Dump all your templated files into a directory for capture
+$ jinny -t template-1.yml template-2.yml -i inputes.json -d /path/to/directory
+$ kubectl diff -f /path/to/directory
+$ kubectl apply --server-dry-run -f /path/to/directory
+
+=> Pipe jinny to kubectl for appropriate templating without having to result to Helm
+$ jinny -t template-1.yml -i inputs.json | kubectl apply -f -
+
 ```
 
 ## Packages used

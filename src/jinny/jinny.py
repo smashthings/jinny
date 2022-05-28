@@ -198,7 +198,7 @@ You can modify jinja's environment settings via the rest of the command line opt
   # Core arguments
   parser.add_argument("-v", "--verbose", help="Set output to verbose", action="store_true")
   parser.add_argument("-vvv", "--super-verbose", help="Set output to super verbose where this script will print basically everything", action="store_true")
-  parser.add_argument("-i", "--input-values", help="Add one or more file locations that include input values to the templating", action="append", nargs="*")
+  parser.add_argument("-i", "--inputs", help="Add one or more file locations that include input values to the templating", action="append", nargs="*")
   parser.add_argument("-t", "--templates", help="Add one or more file locations that contain the templates themselves", action="append", nargs="*", required=True)
   parser.add_argument("-ie", "--ignore-env-vars", help="Tell jinny to ignore any environment variables that begin with JINNY_, defaults to not ignoring these environment variables and setting them at the highest priority", action="store_true")
   parser.add_argument("-ds", "--dict-separator", help="When providing targeting on the CLI or via environment variables, choose a particular separating character for targeting nested elements, defaults to '.'", default=".", type=str)
@@ -323,7 +323,7 @@ def Main():
 
   ##########################################
   # Variable Handling
-  for inputsPath in args.input_values:
+  for inputsPath in args.inputs:
     for inputsPathChild in inputsPath:
       fullPath = os.path.abspath(inputsPathChild)
       if not os.path.exists(inputsPathChild):
