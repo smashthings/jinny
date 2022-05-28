@@ -123,3 +123,5 @@ trigger:
     exclude:
       - master
       - pipeline
+  event:
+    - push
