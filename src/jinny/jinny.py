@@ -413,7 +413,8 @@ def Main():
         for globbedTemplatePath in pathlib.Path(tmplFullPath[:s]).glob(tmplFullPath[s:]):
           if CurrentLoggingSettings.verbosity > 1:
             Log(f'Main(): => {globbedTemplatePath}...')
-          TemplateHandler(path=globbedTemplatePath, addToGlobal=True)
+          if globbedTemplatePath.is_file():
+            TemplateHandler(path=globbedTemplatePath, addToGlobal=True)
       else:
         TemplateHandler(path=tmplFullPath, addToGlobal=True)
 
