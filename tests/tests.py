@@ -233,3 +233,27 @@ def test_cli_with_values():
   print(stderr)
   print(status)
   assert status == 0
+
+
+def test_cli_with_explicit_values():
+  templFile = f"{assetsDir}/sample_template.yml"
+  valuesFile = f'{assetsDir}/sample_values.yml'
+  status, stdout, stderr = RunCmd([
+    "python3",
+    f'{jinnyDir}/jinny.py',
+    "-i",
+    valuesFile,
+    "-t",
+    templFile,
+    "-e",
+    "ports.web=8000"
+    ])
+  
+  results = list(yaml.load_all(stdout, Loader=yaml.FullLoader))
+
+  print(stdout)
+  print(stderr)
+  print(status)
+  assert status == 0
+  assert results[0]["spec"]["ports"][0]["port"] == 8000
+

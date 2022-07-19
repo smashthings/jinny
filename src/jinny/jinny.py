@@ -237,7 +237,7 @@ def logToFile(path:str, msg:str):
 def ArgParsing():
   global CurrentLoggingSettings
   parser = argparse.ArgumentParser(description=f'''jinny v{__version__} | jinny.scripted.dog
-Jinny handles complext templating for jinja templates at a large scale and with multiple inputs and with a decent amount of customisation available.
+Jinny handles complex templating for jinja templates at a large scale and with multiple inputs and with a decent amount of customisation available.
 
 Commonly you'll want to utilse very straight forward features, such as:
 
@@ -250,8 +250,11 @@ $ jinny -t template.yml -i base-values.yml overrides.json
 => Add even more overrides via environment variables, so your pipelines can completely replace any bad value:
 $ JINNY_overridden_value="top-priority" jinny -t template.yml -i base-values.yml overrides.json
 
+=> Or via CLI:
+$ jinny -t template.yml -i base-values.yml -e overridden_value="top-priority" overrides.json
+
 => Pump all your files to a single stdout stream with a separator so different files are clearly marked:
-$ jinny -t template-1.yml template-2.yml -i inputs.json -s '---'
+$ jinny -t template-1.yml template-2.yml -i inputs.json -s='---'
 
 => Dump all your templated files into a directory for capture
 $ jinny -t template-1.yml template-2.yml -i inputes.json -d /path/to/directory
@@ -269,6 +272,7 @@ You can modify jinja's environment settings via the rest of the command line opt
   parser.add_argument("-v", "--verbose", help="Set output to verbose", action="store_true")
   parser.add_argument("-vvv", "--super-verbose", help="Set output to super verbose where this script will print basically everything", action="store_true")
   parser.add_argument("-i", "--inputs", help="Add one or more file locations that include input values to the templating", action="append", nargs="*")
+  parser.add_argument("-e", "--explicit", help="Explicitly define a variable that trumps all other variables using a variable=value format. Adding variables like this trumps every other setting for that variable", action="append", nargs="*")
   parser.add_argument("-t", "--templates", help="Add one or more file locations that contain the templates themselves", action="append", nargs="*", required=True)
   parser.add_argument("-ie", "--ignore-env-vars", help="Tell jinny to ignore any environment variables that begin with JINNY_, defaults to not ignoring these environment variables and setting them at the highest priority", action="store_true")
   parser.add_argument("-ds", "--dict-separator", help="When providing targeting on the CLI or via environment variables, choose a particular separating character for targeting nested elements, defaults to '.'", default=".", type=str)
@@ -450,6 +454,18 @@ def Main():
     for path, val in enumerate(foundVars):
       nestedVal = path.split(args.dict_separator)
       SetNestedValue(baseResource=overallValues, path=nestedVal, value=val)
+
+  if args.explicit:
+    foundExplicitVars = {}
+    for explicitValList in args.explicit:
+      for explicitVal in explicitValList:
+
+        splits = explicitVal.split("=")
+        foundExplicitVars[splits[0]] = "=".join(splits[1:])
+
+    for path in foundExplicitVars:
+      nestedVal = path.split(args.dict_separator)
+      SetNestedValue(baseResource=overallValues, path=nestedVal, value=foundExplicitVars[path])
 
   ##########################################
   # Templating
