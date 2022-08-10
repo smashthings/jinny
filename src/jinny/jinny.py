@@ -451,6 +451,7 @@ def Main():
       if e.startswith("JINNY_") and len(e) > 6:
         foundVars[e[6:]] = os.environ[e]
 
+    # Bugfix from using enumerate to items contributed by @cazgp 
     for path, val in foundVars.items():
       nestedVal = path.split(args.dict_separator)
       SetNestedValue(baseResource=overallValues, path=nestedVal, value=val)
