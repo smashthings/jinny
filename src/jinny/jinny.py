@@ -451,7 +451,7 @@ def Main():
       if e.startswith("JINNY_") and len(e) > 6:
         foundVars[e[6:]] = os.environ[e]
 
-    for path, val in enumerate(foundVars):
+    for path, val in foundVars.items():
       nestedVal = path.split(args.dict_separator)
       SetNestedValue(baseResource=overallValues, path=nestedVal, value=val)
 
