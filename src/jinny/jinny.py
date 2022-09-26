@@ -424,26 +424,27 @@ def Main():
 
   ##########################################
   # Variable Handling
-  for inputsPath in args.inputs:
-    for inputsPathChild in inputsPath:
-      inputFullPath = os.path.abspath(inputsPathChild)
-      if "*" in inputFullPath:
-        s = inputFullPath.find('*')
-        Log(f'Main(): Handling inputs globbing expression {inputFullPath}...')
-        
-        for globbedInputPath in pathlib.Path(inputFullPath[:s]).glob(inputFullPath[s:]):
-          if CurrentLoggingSettings.verbosity > 1:
-            Log(f'Main(): => {globbedInputPath}...')
-          overallValues = CombineValues(overallValues, ParseValuesFile(globbedInputPath), globbedInputPath)
-        continue
+  if args.inputs:
+    for inputsPath in args.inputs:
+      for inputsPathChild in inputsPath:
+        inputFullPath = os.path.abspath(inputsPathChild)
+        if "*" in inputFullPath:
+          s = inputFullPath.find('*')
+          Log(f'Main(): Handling inputs globbing expression {inputFullPath}...')
+          
+          for globbedInputPath in pathlib.Path(inputFullPath[:s]).glob(inputFullPath[s:]):
+            if CurrentLoggingSettings.verbosity > 1:
+              Log(f'Main(): => {globbedInputPath}...')
+            overallValues = CombineValues(overallValues, ParseValuesFile(globbedInputPath), globbedInputPath)
+          continue
 
-      if not os.path.exists(inputFullPath):
-        Log(f"Main(): Could not open inputs file at path '{inputFullPath}'", quitWithStatus=1)
+        if not os.path.exists(inputFullPath):
+          Log(f"Main(): Could not open inputs file at path '{inputFullPath}'", quitWithStatus=1)
 
-      if os.stat(inputFullPath).st_size == 0:
-        continue
+        if os.stat(inputFullPath).st_size == 0:
+          continue
 
-      overallValues = CombineValues(overallValues, ParseValuesFile(inputFullPath), inputFullPath)
+        overallValues = CombineValues(overallValues, ParseValuesFile(inputFullPath), inputFullPath)
 
   if not args.ignore_env_vars:
     foundVars = {}
