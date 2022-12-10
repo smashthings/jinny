@@ -29,18 +29,21 @@ $ jinny -t template-1.txt template-2.txt -i inputs.yml
 => Templating any number of templates with two input files where base-values.yml provides all the base values and any values in overrides.json acts as an override:
 $ jinny -t template.yml -i base-values.yml overrides.json
 
+=> Add an explicit override via CLI argument -e
+$ jinny -t template.yml -i base-values.yml -e 'image=smasherofallthings/flask-waitress:latest'
+
 => Add even more overrides via environment variables, so your pipelines can completely replace any bad value:
 $ JINNY_overridden_value="top-priority" jinny -t template.yml -i base-values.yml overrides.json
 
 => Pump all your files to a single stdout stream with a separator so different files are clearly marked:
 $ jinny -t template-1.yml template-2.yml -i inputs.json -s '---'
 
-=> Dump all your templated files into a directory for capture
-$ jinny -t template-1.yml template-2.yml -i inputes.json -d /path/to/directory
+=> Dump all your templated files into a directory for capture, comparison and deployment
+$ jinny -t template-1.yml template-2.yml -i inputs.json -d /path/to/directory
 $ kubectl diff -f /path/to/directory
 $ kubectl apply --server-dry-run -f /path/to/directory
 
-=> Pipe jinny to kubectl for appropriate templating without having to result to Helm
+=> Pipe jinny to kubectl directly
 $ jinny -t template-1.yml -i inputs.json | kubectl apply -f -
 
 ```
