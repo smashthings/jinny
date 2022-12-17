@@ -1,0 +1,8 @@
+#!/bin/bash
+
+CurrentBranch=$(git rev-parse --abbrev-ref HEAD)
+VersionFileLineCount=$(git diff HEAD@{1} --stat -- $GIT_DIR/../src/jinny/version | wc -l)
+if [[ $VersionFileLineCount -eq 0 ]] && [[ $CurrentBranch == "master" ]]; then
+  printf "On master branch and version file not updated! Update the damn version!\n\n"
+  exit 1
+fi
