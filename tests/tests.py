@@ -205,9 +205,11 @@ def test_provided_template_with_basic_inputs():
 
   tmplClass.Render(vals)
   res = tmplClass.result
+  res2 = tmplClass.Result()
 
   try:
     assertingYaml = yaml.load_all(res, Loader=yaml.FullLoader)
+    assertingYamlAgain = yaml.load_all(res2, Loader=yaml.FullLoader)
   except Exception as e:
     execDetails = sys.exc_info()
     print(f"Failed to output to yaml with exception:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}")

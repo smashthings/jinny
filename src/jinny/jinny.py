@@ -381,6 +381,9 @@ class TemplateHandler():
       execDetails = sys.exc_info()
       Log(f"TemplateHandler.Render(): Failed to render template at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
+  def Result(self):
+    return self.result if self.result else None
+
 def ParseValues(*AscendingPriorityInputObjects):
   if len(AscendingPriorityInputObjects) == 0:
     raise Exception(f"ParseValues(): No arguments passed!")
