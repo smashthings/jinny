@@ -12,8 +12,9 @@ import jinja2
 import argparse
 import traceback
 import pathlib
-import filter_extensions
 import inspect
+
+import jinny.filter_extensions as filter_extensions
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
 
