@@ -5,13 +5,16 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src/jinny')))
 
 import yaml
+import json
 import traceback
 import subprocess
+import pytest
 
 import jinny
 import inspect
 
 jinny.VerboseSetting = 2
+jinny.LoadCustomFilters()
 
 ##########################################
 # Paths
@@ -236,7 +239,6 @@ def test_cli_with_values():
   print(status)
   assert status == 0
 
-
 def test_cli_with_explicit_values():
   templFile = f"{assetsDir}/sample_template.yml"
   valuesFile = f'{assetsDir}/sample_values.yml'
@@ -259,3 +261,73 @@ def test_cli_with_explicit_values():
   assert status == 0
   assert results[0]["spec"]["ports"][0]["port"] == 8000
 
+##########################################
+# Extensions
+
+extensionsOutput = None
+
+def test_extensions_prep_output():
+  global extensionsOutput
+  templFile = f"{assetsDir}/filters_template.yml"
+  valuesFile = f'{assetsDir}/sample_values.yml'
+  status, stdout, stderr = RunCmd([
+    "python3",
+    f'{jinnyDir}/jinny.py',
+    "-i",
+    valuesFile,
+    "-t",
+    templFile,
+    ])
+
+  print(stdout)
+  print(stderr)
+  print(status)
+  assert status == 0
+
+  results = yaml.load(stdout, Loader=yaml.FullLoader)
+  extensionsOutput = results
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_extension_file_content():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["release_name"] == "testing"
+
+  targetFileContent = f"{assetsDir}/file_content.txt"
+  with open(targetFileContent, "r") as f:
+    targetFileContentData = f.read()
+  
+  print('extensionsOutput["file_content"]:')
+  print(extensionsOutput["file_content"])
+  print('targetFileContentData:')
+  print(targetFileContentData)
+  assert hash(extensionsOutput["file_content"].strip()) == hash(targetFileContentData.strip())
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_extension_paths():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput['path_extensions_each']
+  assert extensionsOutput['path_extensions_each']['cwd']
+  assert extensionsOutput['path_extensions_each']['jinny']
+  assert extensionsOutput['path_extensions_each']['template']
+  assert extensionsOutput['path_extensions_each']['templatedir']
+  assert extensionsOutput['path_extensions_each']['home']
+  assert isinstance(extensionsOutput['path_extensions_dict'], dict)
+
+# As we're reading from stdout
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_raw_templating():
+  templFile = f"{assetsDir}/raw_template.yml"
+  valuesFile = f'{assetsDir}/sample_values.yml'
+
+  with open(valuesFile) as f:
+    templValsData = f.read()
+  templVals = yaml.load(templValsData, Loader=yaml.FullLoader)
+
+  tmplClass = jinny.TemplateHandler(templateName="test_raw_templating", path=templFile)
+  tmplClass.Render(templVals)
+  res = tmplClass.Result()
+
+  targetFileContent = f"{assetsDir}/file_content.txt"
+  with open(targetFileContent, "r") as f:
+    targetFileContentData = f.read()
+  assert hash(res) == hash(targetFileContentData)

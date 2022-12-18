@@ -1,0 +1,14 @@
+release_name: {{ release_name }}
+file_content: |
+{{ ( path.templatedir + "file_content.txt" ) | file_content | indent(2, first=True, blank=True) }}
+path_extensions_each:
+  cwd: {{ path.cwd }}
+  jinny: {{ path.jinny }}
+  template: {{ path.template }}
+  templatedir: {{ path.templatedir }}
+  home: {{ path.home }}
+
+path_extensions_dict:
+{% for k in path.keys() %}
+  {{k}}: {{path[k]}}
+{% endfor %}

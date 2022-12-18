@@ -12,6 +12,8 @@ import jinja2
 import argparse
 import traceback
 import pathlib
+import filter_extensions
+import inspect
 
 baseDir = os.path.dirname(os.path.abspath(__file__))
 
@@ -155,7 +157,6 @@ def GenerateNestedDict(path:list, value):
     target = target[item]
   return replicatedObj
 
-
 def ParseValuesFile(path:str):
   ext = os.path.basename(path).split(".")
   if len(ext) == 2:
@@ -202,6 +203,11 @@ def ParseValuesFile(path:str):
       pass
     Log(f"Main(): Could not load inputs file '{path}' as either a JSON or a YAML file, please inspect!", quitWithStatus=1)
 
+def LoadCustomFilters():
+  global baseJ2Env
+  for f in inspect.getmembers(filter_extensions, inspect.isfunction):
+    baseJ2Env.filters.update({f[0]: f[1]})
+
 ##########################################
 # Logging
 def Log(message, quit:bool=False, quitWithStatus:int=0, AlwaysLog:bool=False):
@@ -236,6 +242,7 @@ def logToFile(path:str, msg:str):
 # Argparsing
 def ArgParsing():
   global CurrentLoggingSettings
+  global baseJ2Env
   parser = argparse.ArgumentParser(description=f'''jinny v{__version__} | jinny.scripted.dog
 Jinny handles complex templating for jinja templates at a large scale and with multiple inputs and with a decent amount of customisation available.
 
@@ -302,7 +309,6 @@ You can modify jinja's environment settings via the rest of the command line opt
   if args.combine_lists:
     CombineLists = True
 
-  # jinja2.Environment(bl)
   baseJ2Env = jinja2.Environment(
     block_start_string = args.j_block_start,
     block_end_string = args.j_block_end,
@@ -371,6 +377,14 @@ class TemplateHandler():
       execDetails = sys.exc_info()
       Log(f"TemplateHandler(): Failed to load template at '{path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
+    self.loadedTemplate.environment.globals["path"] = {
+      "cwd": os.getcwd().rstrip("/") + "/",
+      "jinny": baseDir.rstrip("/") + "/",
+      "template": os.path.abspath(path) if path else "",
+      "templatedir": os.path.dirname(os.path.abspath(path)).rstrip("/") + "/" if path else "",
+      "home": os.path.expanduser('~').rstrip("/") + "/"
+    }
+
     if addToGlobal:
       globalAllTemplatesProcessed[self.name] = self
 
@@ -397,9 +411,6 @@ def ParseValues(*AscendingPriorityInputObjects):
       returningThing = CombineValues(returningThing, thing, fullPath)
   return returningThing
 
-def SetJ2Env(**args):
-  baseJ2Env = jinja2.Environment(**args)
-
 ##########################################
 # Direct function
 
@@ -407,6 +418,7 @@ def Main():
   ##########################################
   # Parse CLI Arguments
   args = ArgParsing()
+  LoadCustomFilters()
   overallValues = {}
   stdoutDump = []
   ##########################################

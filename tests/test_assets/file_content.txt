@@ -1,0 +1,4 @@
+this is some standard file
+with line breaks
+and a crazy symbol here & and then also some jinja special characters
+like {{ and %} and a complete reference like {{ non_value }} also fishing

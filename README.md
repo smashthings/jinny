@@ -4,7 +4,7 @@
 
 # jinny
 
-Jinny is a templating tool for jinja templates. It can be used for a number of things but was created from a DevOps perspective to aid in configuration management for scaled deployments instead of using tools like Helm, Kustomize, jinja-cli, etc.
+Jinny is a templating tool for jinja templates. It can be used for a number of things but was created from a DevOps perspective to aid in configuration management for scaled deployments instead of using tools like Helm, Kustomize, jinja-cli, etc. These days jinny is still used for Ops work but is also used for live applications handling email templating, static HTML generation and more
 
 ## Use Cases & Why
 
@@ -89,6 +89,67 @@ print(tmpl.result)
 
 ```
 
+## Enhancements
+Jinny is opinionated. This means that it does things like trim template whitespace by default so you don't have to debug whitespace in your output. However, it's also opinionated in that the base jinja filters and objects can and have been expanded to provide appropriate functionality that is common jinny's use cases.
+
+**Filters**
+
+*file_content*
+```
+$ cat template.html
+
+<html>
+<style>
+{{ ( path.templatedir + "css.css" ) | file_content }}
+</style>
+</html>
+
+$ cat css.css
+
+html { font-weight: 900; }
+
+$ jinny -t template.html
+<html>
+<style>
+html { font-weight: 900; }
+</style>
+</html>
+
+
+```
+
+**Globals**
+
+*path*
+path is a global dict that is available on each template. It'll give you the variables for:
+
+- cwd - the current working directory
+- jinny - jinny's directory, ie the jinny module itself
+- template - the full path of the template currently being templated
+- templatedir - the directory of the template currently being templated
+- home - the home directory
+
+These are global values so you can access them whenever and easily combined them into paths that work locally or in unstable environments such as inside pipelines
+
+```
+$ cat template.txt
+I'm working from {{ path.cwd }}
+jinny is running from {{ path.jinny }}
+This template is {{ path.template }} in the directory {{ path.templatedir }}
+My home directory with all my cat pics and DRG screenshots is {{ path.home }}
+
+Rock and Stone!
+
+$ jinny -t template.txt
+I'm working from /home/smashthings/jinny-tmp/
+jinny is running from /home/smashthings/.local/bin/jinny
+This template is /home/smashthings/jinny-tmp/template.txt in the directory /home/smashthings/jinny-tmp/
+My home directory with all my cat pics and DRG screenshots is /home/smashthings/
+
+Rock and Stone!
+
+
+```
 
 ## Packages used
 Check out src/jinny/requirements.txt

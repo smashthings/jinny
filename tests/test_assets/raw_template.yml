@@ -1,0 +1,1 @@
+{{ ( path.templatedir + "file_content.txt" ) | file_content }}
