@@ -94,7 +94,8 @@ Jinny is opinionated. This means that it does things like trim template whitespa
 
 **Filters**
 
-*file_content*
+*file_content* \
+
 ```
 $ cat template.html
 
@@ -120,7 +121,8 @@ html { font-weight: 900; }
 
 **Globals**
 
-*path*
+*path* \
+
 path is a global dict that is available on each template. It'll give you the variables for:
 
 - cwd - the current working directory
@@ -154,7 +156,7 @@ Rock and Stone!
 ## Packages used
 Check out src/jinny/requirements.txt
 
-As of May 2022 only PyYAML and Jinja2 are used
+As of December 2022 only PyYAML and Jinja2 are used outside the base library
 
 ## FAQs
 

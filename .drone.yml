@@ -40,7 +40,6 @@ steps:
   image: smasherofallthings/debug
   commands:
   - git checkout $DRONE_BRANCH
-  - ls -al /root/.ssh
   - git remote add github git@github.com:smashthings/jinny.git
   - git push -u github
   - git remote add gitlab git@gitlab.com:scripteddog/jinny.git
@@ -67,7 +66,6 @@ trigger:
   event:
     - push
 
-
 ---
 kind: pipeline
 type: docker
@@ -92,6 +90,18 @@ steps:
   commands:
     - python3 setup.py sdist
     - twine upload dist/*
+
+- name: Push tags to public repos
+  image: smasherofallthings/debug
+  commands:
+  - git checkout $DRONE_BRANCH
+  - git remote add github git@github.com:smashthings/jinny.git
+  - git push -u github $DRONE_TAG
+  - git remote add gitlab git@gitlab.com:scripteddog/jinny.git
+  - git push -u gitlab $DRONE_TAG
+  volumes:
+  - name: ssh-creds
+    path: /root/.ssh/
 
 trigger:
   event:
