@@ -103,6 +103,11 @@ steps:
   - name: ssh-creds
     path: /root/.ssh/
 
+volumes:
+- name: ssh-creds
+  host:
+    path: /root/.ssh/
+
 trigger:
   event:
     - tag
