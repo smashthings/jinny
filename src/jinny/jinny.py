@@ -14,9 +14,13 @@ import traceback
 import pathlib
 import inspect
 
-import jinny.filter_extensions as filter_extensions
-
 baseDir = os.path.dirname(os.path.abspath(__file__))
+if __name__ == '__main__':
+  from imports import filter_extensions
+else:
+  sys.path.insert(0, baseDir)
+  from imports import filter_extensions
+  sys.path.pop(0)
 
 if not os.path.exists(f'{baseDir}/version'):
   print(f"Jinny's version file doesn't exist, expected to find it at {basedir}/version. Not a good sign, might be best to reinstall jinny!")
