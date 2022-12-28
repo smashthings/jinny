@@ -332,15 +332,12 @@ You can modify jinja's environment settings via the rest of the command line opt
     Log(f"ArgParsing(): The parent directory for the custom log file '{args.log_destination}' either does not exist or is not a directory, please check it!", quitWithStatus=1)
 
   if type(args.dump_to_dir) == str:
-    args.dump_to_dir = args.dump_to_dir.strip('/')
-    if not os.path.isdir(os.path.dirname(args.dump_to_dir)):
+    args.dump_to_dir = os.path.abspath(args.dump_to_dir.strip('/'))
+    if not os.path.isdir(args.dump_to_dir):
       Log(f"ArgParsing(): The parent directory for dumping completed templates to '{args.dump_to_dir}' does not exist, please check your arguments!", quitWithStatus=1)
 
     if os.path.isfile(args.dump_to_dir):
       Log(f"ArgParsing(): The location provided for dumping completed templates to is a file and not a directory '{args.dump_to_dir}', please check your arguments!", quitWithStatus=1)
-      
-    if not os.path.exists(args.dump_to_dir):
-      os.mkdir(args.dump_to_dir)
 
   vs = 0
   if args.verbose:
