@@ -17,9 +17,11 @@ import inspect
 baseDir = os.path.dirname(os.path.abspath(__file__))
 if __name__ == '__main__':
   from imports import filter_extensions
+  from imports import global_extensions
 else:
   sys.path.insert(0, baseDir)
   from imports import filter_extensions
+  from imports import global_extensions
   sys.path.pop(0)
 
 if not os.path.exists(f'{baseDir}/version'):
@@ -212,6 +214,8 @@ def LoadCustomFilters():
   global baseJ2Env
   for f in inspect.getmembers(filter_extensions, inspect.isfunction):
     baseJ2Env.filters.update({f[0]: f[1]})
+  for f in inspect.getmembers(global_extensions, inspect.isfunction):
+    baseJ2Env.globals.update({f[0]: f[1]})
 
 ##########################################
 # Logging

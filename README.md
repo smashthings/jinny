@@ -94,7 +94,8 @@ Jinny is opinionated. This means that it does things like trim template whitespa
 
 **Filters**
 
-*file_content* \
+*file_content*
+
 
 ```
 $ cat template.html
@@ -121,7 +122,8 @@ html { font-weight: 900; }
 
 **Globals**
 
-*path* \
+*path*
+
 
 path is a global dict that is available on each template. It'll give you the variables for:
 
@@ -149,6 +151,35 @@ This template is /home/smashthings/jinny-tmp/template.txt in the directory /home
 My home directory with all my cat pics and DRG screenshots is /home/smashthings/
 
 Rock and Stone!
+
+
+```
+
+*time_now*
+
+time_now will generate a timestamp at the UTC time that it's called and return the timestamp based on the provided format string based on datetime's strftime. If you don't provide a format it'll return the microsecond ISO timestamp
+
+https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
+
+
+```
+$ cat template.txt
+#### => Template Start: {{ time_now("%M:%S.%f") }}
+
+The exact UTC time down to the microsecond is {{ time_now() }}
+But if you just wanted to know what time it is for humans it's {{ time_now("%Y-%m-%dT%H:%M") }}
+Or you could say {{ time_now("%A the %j day of %Y which is also the %d day of %B") }}
+
+#### => Template Finish: {{ time_now("%M:%S.%f") }}
+
+$ jinny -t template.txt
+#### => Template Start: 28:42.871426
+
+The exact UTC time down to the microsecond is 2022-12-31T08:28:42.871447
+But if you just wanted to know what time it is for humans it's 2022-12-31T08:28
+Or you could say Saturday the 365 day of 2022 which is also the 31 day of December
+
+#### => Template Finish: 28:42.871465
 
 
 ```

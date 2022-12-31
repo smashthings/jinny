@@ -12,3 +12,5 @@ path_extensions_dict:
 {% for k in path.keys() %}
   {{k}}: {{path[k]}}
 {% endfor %}
+
+time_now: {{ time_now("%Y-%m-%dT%H:%M") }}

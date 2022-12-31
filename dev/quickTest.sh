@@ -2,4 +2,4 @@
 
 scriptDir=$(realpath $(dirname ${0}))
 
-pytest "${scriptDir}/../tests/tests.py"
+pytest -x "${scriptDir}/../tests/tests.py"
