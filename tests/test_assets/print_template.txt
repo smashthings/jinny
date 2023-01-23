@@ -1,0 +1,2 @@
+{{ "stdout mushrooms" | print_stdout }}
+{{ "stderr bacon" | print_stderr }}

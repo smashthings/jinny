@@ -150,6 +150,40 @@ html { font-weight: 600; }
 
 ```
 
+*print_stdout*, *print_stderr* & *tee*
+
+These filters will print to stdout, stderr or tee to stdout and continue to content. They're used for debugging, warnings and other elements.
+
+You are going to want to run this with -d or -di options so that resulting templates are written to files rather than dumped to standard out.
+
+With those options it means you can do cool things like this where the templating process itself can be annotated:
+
+```
+$ cat template.html
+
+<html>
+<style>
+  {{ ("Running a build of this template " + path.template + " at: ") | print_stdout }}
+  <h1> This page was generated at {{ time_now() | tee }}</h1>
+</style>
+</html>
+
+
+$ jinny -t template.html --dump-to-dir "$(pwd)"
+Running a build of this template /home/smashthings/jinny-tmp/template.html at: 
+2023-01-23T19:42:56.581482
+
+$ cat 0-template.html
+<html>
+<style>
+  
+  <h1> This page was generated at 2023-01-23T19:42:56.581482</h1>
+</style>
+</html>
+
+
+```
+
 **Globals**
 
 *path*

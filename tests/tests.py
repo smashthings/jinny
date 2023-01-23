@@ -348,3 +348,20 @@ def test_nested_template():
   assert extensionsOutput["nested_template"]['nested_path_cwd'] == extensionsOutput['path_extensions_each']['cwd']
   assert extensionsOutput["nested_template"]['nested_value'] == extensionsOutput['release_name']
 
+def test_extensions_print():
+  templFile = f"{assetsDir}/print_template.txt"
+  status, stdout, stderr = RunCmd([
+    "python3",
+    f'{jinnyDir}/jinny.py',
+    "-t",
+    templFile,
+    ])
+
+  print(f'stdout: {stdout}')
+  print(f'stderr: {stderr}')
+  print(f'status: {status}')
+
+  assert status == 0
+  assert stdout.strip() == "stdout mushrooms"
+  assert stderr.strip() == "stderr bacon"
+

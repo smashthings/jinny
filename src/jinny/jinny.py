@@ -258,17 +258,20 @@ def NestedTemplate(filename):
     dest = os.path.abspath(filename)
   else:
     raise Exception(f"jinny.filter_extenions.nested_template(): The file at path {filename} does not exist!")
+
+  Log(f'NestedTemplate(): {dest}')
+  nt = TemplateHandler(
+    templateName=f'(Nested) - {os.path.basename(dest)}',
+    addToGlobal=False,
+    nested=True,
+    path=dest,
+  )
   try:
-    nt = TemplateHandler(
-      templateName=os.path.basename(dest),
-      addToGlobal=False,
-      nested=True,
-      path=dest
-    )
     res = nt.Render(workingValsPointer)
     return nt.Result()
   except Exception as e:
     print(f"jinny.filter_extenions.nested_template(): Failed to read and template from file {filename} with exception")
+    traceback.print_exception(e)
     raise
 
 
@@ -333,6 +336,7 @@ You can modify jinja's environment settings via the rest of the command line opt
 
   # Other Arguments
   parser.add_argument("-d", "--dump-to-dir", help="Dump completed templates to a target directory", type=str)
+  parser.add_argument("-di", "--dump-to-dir-no-index", help="Dump completed templates to a target directory without index separation, meaning that templates with the same name can overwrite prior templates", type=str)
   parser.add_argument("-s", "--stdout-seperator", help="Place a seperator on it's own individual new line between successfully templated template when printing to stdout, eg '---' for yaml", type=str, default='')
   parser.add_argument("-c", "--combine-lists", help="When cascading values across multiple files and encountering two lists with the same key, choose to combine the old list with the new list rather than have the new list replace the old", action="store_false")
   parser.add_argument("-ld", "--log-destination", help="Chose an alternate destination to log to, jinny defaults to stdout but you can provide a file to print output to instead", default="/dev/stdout", type=str)
@@ -360,13 +364,14 @@ You can modify jinja's environment settings via the rest of the command line opt
   if args.log_destination != "/dev/stdout" and not os.path.isdir(os.path.dirname(args.log_destination)):
     Log(f"ArgParsing(): The parent directory for the custom log file '{args.log_destination}' either does not exist or is not a directory, please check it!", quitWithStatus=1)
 
-  if type(args.dump_to_dir) == str:
-    args.dump_to_dir = os.path.abspath(args.dump_to_dir.strip('/'))
-    if not os.path.isdir(args.dump_to_dir):
-      Log(f"ArgParsing(): The parent directory for dumping completed templates to '{args.dump_to_dir}' does not exist, please check your arguments!", quitWithStatus=1)
+  if type(args.dump_to_dir) == str or type(args.dump_to_dir_no_index) == str:
+    tarDump = "dump_to_dir" if type(args.dump_to_dir) == str else "dump_to_dir_no_index"
+    args.__setattr__(tarDump, getattr(args, tarDump).strip('/'))
+    if not os.path.isdir(getattr(args, tarDump)):
+      Log(f"ArgParsing(): The parent directory for dumping completed templates to '{getattr(args, tarDump)}' does not exist, please check your arguments!", quitWithStatus=1)
 
-    if os.path.isfile(args.dump_to_dir):
-      Log(f"ArgParsing(): The location provided for dumping completed templates to is a file and not a directory '{args.dump_to_dir}', please check your arguments!", quitWithStatus=1)
+    if os.path.isfile(getattr(args, tarDump)):
+      Log(f"ArgParsing(): The location provided for dumping completed templates to is a file and not a directory '{getattr(args, tarDump)}', please check your arguments!", quitWithStatus=1)
 
   vs = 0
   if args.verbose:
@@ -381,6 +386,7 @@ You can modify jinja's environment settings via the rest of the command line opt
 # Class
 class TemplateHandler():
   def __init__(self, templateName:str="", addToGlobal:bool=False, path:str="", rawString:str="", nested:bool=False):
+    Log(f'TemplateHandler(): Handling template at path {path}')
     if not path and not rawString:
       raise Exception(f'TemplateHandler(): Neither a path nor a raw template string was provided, crashing!')
     if path and rawString:
@@ -409,18 +415,22 @@ class TemplateHandler():
       execDetails = sys.exc_info()
       Log(f"TemplateHandler(): Failed to load {'nested template' if self.nested  else 'template' } at '{path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
-    self.loadedTemplate.environment.globals["path"] = {
-      "cwd": os.getcwd().rstrip("/") + "/",
-      "jinny": baseDir.rstrip("/") + "/",
-      "template": os.path.abspath(path) if path else "",
-      "templatedir": os.path.dirname(os.path.abspath(path)).rstrip("/") + "/" if path else "",
-      "home": os.path.expanduser('~').rstrip("/") + "/"
+    self.extensions = {
+      "path": {
+        "cwd": os.getcwd().rstrip("/") + "/",
+        "jinny": baseDir.rstrip("/") + "/",
+        "template": os.path.abspath(path) if path else "",
+        "templatedir": os.path.dirname(os.path.abspath(path)).rstrip("/") + "/" if path else "",
+        "home": os.path.expanduser('~').rstrip("/") + "/"
+      }
     }
 
     if addToGlobal:
       globalAllTemplatesProcessed[self.name] = self
 
   def Render(self, values):
+    Log(f"TemplateHandler.Render({self.name}): Started render")
+    self.loadedTemplate.environment.globals["path"] = self.extensions["path"]
     try:
       if not self.nested:
         global workingValsPointer
@@ -529,14 +539,15 @@ def Main():
     if globalAllTemplatesProcessed[tmpl].result == "":
       continue
 
-    if args.dump_to_dir:
-      dest = args.dump_to_dir + f'/{ind}-{globalAllTemplatesProcessed[tmpl].basename}'
+    if args.dump_to_dir or args.dump_to_dir_no_index:
+      tarDump = "dump_to_dir" if type(args.dump_to_dir) == str else "dump_to_dir_no_index"
+      dest = getattr(args, tarDump) + f'/{str(ind) + "-" if args.dump_to_dir else "" }{globalAllTemplatesProcessed[tmpl].basename}'
       with open(dest, "w+") as f:
         f.write(globalAllTemplatesProcessed[tmpl].result)
     else:
       stdoutDump.append(globalAllTemplatesProcessed[tmpl].result)
 
-  if not args.dump_to_dir:
+  if not args.dump_to_dir and not args.dump_to_dir_no_index:
     print(f'\n{args.stdout_seperator}\n'.join(stdoutDump))
 
 if __name__ == "__main__":
