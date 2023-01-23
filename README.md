@@ -96,6 +96,7 @@ Jinny is opinionated. This means that it does things like trim template whitespa
 
 *file_content*
 
+Goes ahead and imports the raw content of a file into the template where called
 
 ```
 $ cat template.html
@@ -114,6 +115,35 @@ $ jinny -t template.html
 <html>
 <style>
 html { font-weight: 900; }
+</style>
+</html>
+
+
+```
+
+*nested_template*
+
+Imports and templates other templates with the same values as the master template has received. This may not be thread safe for non-GIL or other multithreaded implementations of python as it relies on pointer updates to a global variable from the root template. For CPython which is the vast majority of implementations and runtime this is totally fine.
+
+Benefit of this approach is dodging passing the value stack through the Jinja codebase which can be prone to breaking in Jinja updates and adds a substantial overhead to route and debug.
+
+```
+$ cat template.html
+
+<html>
+<style>
+{{ ( path.templatedir + "css.css" ) | nested_template }}
+</style>
+</html>
+
+$ cat css.css
+
+html { font-weight: {{ font_weight }}; }
+
+$ jinny -t template.html -e font_weight=600
+<html>
+<style>
+html { font-weight: 600; }
 </style>
 </html>
 

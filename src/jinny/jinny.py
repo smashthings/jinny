@@ -50,6 +50,7 @@ globalAllTemplatesProcessed = {}
 baseJ2Env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True, keep_trailing_newline=True)
 CombineLists = False
 args = None
+workingValsPointer = None
 
 CurrentLoggingSettings = LoggingSettings()
 
@@ -216,6 +217,9 @@ def LoadCustomFilters():
     baseJ2Env.filters.update({f[0]: f[1]})
   for f in inspect.getmembers(global_extensions, inspect.isfunction):
     baseJ2Env.globals.update({f[0]: f[1]})
+  baseJ2Env.filters.update({
+    'nested_template': NestedTemplate
+  })
 
 ##########################################
 # Logging
@@ -246,6 +250,27 @@ def logToFile(path:str, msg:str):
   else:
     with open(path, 'a+') as f:
       f.write(msg + "\n")
+
+def NestedTemplate(filename):
+  if os.path.exists(filename):
+    dest = filename
+  elif os.path.exists(os.path.abspath(filename)):
+    dest = os.path.abspath(filename)
+  else:
+    raise Exception(f"jinny.filter_extenions.nested_template(): The file at path {filename} does not exist!")
+  try:
+    nt = TemplateHandler(
+      templateName=os.path.basename(dest),
+      addToGlobal=False,
+      nested=True,
+      path=dest
+    )
+    res = nt.Render(workingValsPointer)
+    return nt.Result()
+  except Exception as e:
+    print(f"jinny.filter_extenions.nested_template(): Failed to read and template from file {filename} with exception")
+    raise
+
 
 ##########################################
 # Argparsing
@@ -355,18 +380,19 @@ You can modify jinja's environment settings via the rest of the command line opt
 ##########################################
 # Class
 class TemplateHandler():
-  def __init__(self, templateName:str="", addToGlobal:bool=False, path:str="", rawString:str=""):
+  def __init__(self, templateName:str="", addToGlobal:bool=False, path:str="", rawString:str="", nested:bool=False):
     if not path and not rawString:
       raise Exception(f'TemplateHandler(): Neither a path nor a raw template string was provided, crashing!')
     if path and rawString:
       raise Exception(f'TemplateHandler(): Both a path and a raw string was provided, exiting, wise up!')
     self.path = path
     self.result = None
+    self.nested = nested
 
     if path != "":
       self.name = os.path.abspath(path)
       if not os.path.exists(path):
-        Log(f"TemplateHandler(): Failed to read template at path '{path}', cannot load in desired template!", quitWithStatus=1)
+        Log(f"TemplateHandler(): Failed to read {'nested template' if self.nested else 'template' } at path '{path}', cannot load in desired template!", quitWithStatus=1)
       with open(path, "r") as f:
         self.templateData = f.read()
         self.basename = os.path.basename(self.name)
@@ -381,7 +407,7 @@ class TemplateHandler():
       self.loadedTemplate = baseJ2Env.from_string(self.templateData)
     except Exception as e:
       execDetails = sys.exc_info()
-      Log(f"TemplateHandler(): Failed to load template at '{path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
+      Log(f"TemplateHandler(): Failed to load {'nested template' if self.nested  else 'template' } at '{path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
     self.loadedTemplate.environment.globals["path"] = {
       "cwd": os.getcwd().rstrip("/") + "/",
@@ -396,10 +422,15 @@ class TemplateHandler():
 
   def Render(self, values):
     try:
+      if not self.nested:
+        global workingValsPointer
+        workingValsPointer = values
       self.result = self.loadedTemplate.render(values)
+      if not self.nested:
+        workingValsPointer = None
     except Exception as e:
       execDetails = sys.exc_info()
-      Log(f"TemplateHandler.Render(): Failed to render template at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
+      Log(f"TemplateHandler.Render(): Failed to render {'nested template' if self.nested  else 'template' } at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
   def Result(self):
     return self.result if self.result else None

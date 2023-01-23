@@ -340,3 +340,11 @@ def test_raw_templating():
     targetFileContentData = f.read()
   assert hash(res) == hash(targetFileContentData)
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_nested_template():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["nested_template"]
+  assert extensionsOutput["nested_template"]['this'] == "is a nested template"
+  assert extensionsOutput["nested_template"]['nested_path_cwd'] == extensionsOutput['path_extensions_each']['cwd']
+  assert extensionsOutput["nested_template"]['nested_value'] == extensionsOutput['release_name']
+

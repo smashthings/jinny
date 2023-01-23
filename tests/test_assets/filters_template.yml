@@ -14,3 +14,6 @@ path_extensions_dict:
 {% endfor %}
 
 time_now: {{ time_now("%Y-%m-%dT%H:%M") }}
+
+nested_template:
+{{ ( path.templatedir + "nested_template.yml" ) | nested_template | indent(2, first=True, blank=True) }}
