@@ -314,7 +314,7 @@ You can modify jinja's environment settings via the rest of the command line opt
 
   # Core arguments
   parser.add_argument("-v", "--verbose", help="Set output to verbose", action="store_true")
-  parser.add_argument("-vvv", "--super-verbose", help="Set output to super verbose where this script will print basically everything", action="store_true")
+  parser.add_argument("-vvv", "--super-verbose", help="Set output to super verbose where this script will print basically everything, INCLUDING POTENTIALLY SENSITIVE THINGS!", action="store_true")
   parser.add_argument("-i", "--inputs", help="Add one or more file locations that include input values to the templating", action="append", nargs="*")
   parser.add_argument("-e", "--explicit", help="Explicitly define a variable that trumps all other variables using a variable=value format. Adding variables like this trumps every other setting for that variable", action="append", nargs="*")
   parser.add_argument("-t", "--templates", help="Add one or more file locations that contain the templates themselves", action="append", nargs="*", required=True)
@@ -533,6 +533,9 @@ def Main():
 
   ##########################################
   # Templating
+  if args.super_verbose:
+    Log("Calculated values:")
+    print(json.dumps(overallValues, indent=2))
   for ind, tmpl in enumerate(globalAllTemplatesProcessed):
     globalAllTemplatesProcessed[tmpl].Render(overallValues)
 
