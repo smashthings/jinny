@@ -321,6 +321,18 @@ def test_time_now():
   n = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M")
   assert extensionsOutput["time_now"] == n
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_prompt_envvar():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput['prompt_envvar'] == os.environ['HOME']
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_time_now():
+  print(json.dumps(extensionsOutput, indent=2))
+  # This will fail in some millisecond, possibly microsecond intervals between minutes, however, given GIL likely always a race condition in this scenario and possibly never encountered
+  n = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M")
+  assert extensionsOutput["time_now"] == n
+
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
 def test_raw_templating():

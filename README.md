@@ -248,6 +248,59 @@ Or you could say Saturday the 365 day of 2022 which is also the 31 day of Decemb
 
 ```
 
+*prompt_envvar*
+
+prompt_envvar will prompt you for environment variables that are missing as jinny reaches them in your template(s). Once you provide a value it will set that environment value and continue on, meaning that all other calls for that environment variable will recieve the same value.
+
+This is useful for one off values that don't need to be committed to code or for values that you want to ask for at run time such as passwords.
+
+```
+$ cat template.txt
+---
+I'm driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}
+Oh, I can't wait to see those faces
+I'm driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}, yeah
+Well I'm moving down that line
+And it's been so long
+But I will be there
+I sing this song
+To pass the time away
+Driving in my car
+Driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}%   
+
+$ jinny -t template.txt
+Please set variable 'destination':
+home
+Please set variable 'event':
+Christmas
+---
+I'm driving home for Christmas
+Oh, I can't wait to see those faces
+I'm driving home for Christmas, yeah
+Well I'm moving down that line
+And it's been so long
+But I will be there
+I sing this song
+To pass the time away
+Driving in my car
+Driving home for Christmas
+
+$ destination='to the bottlo' event='a big bag of cans' jinny -t template.txt
+---
+I'm driving to the bottlo for a big bag of cans
+Oh, I can't wait to see those faces
+I'm driving to the bottlo for a big bag of cans, yeah
+Well I'm moving down that line
+And it's been so long
+But I will be there
+I sing this song
+To pass the time away
+Driving in my car
+Driving to the bottlo for a big bag of cans
+
+
+```
+
 ## Packages used
 Check out src/jinny/requirements.txt
 

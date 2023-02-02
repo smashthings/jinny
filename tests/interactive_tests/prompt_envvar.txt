@@ -1,0 +1,11 @@
+---
+I'm driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}
+Oh, I can't wait to see those faces
+I'm driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}, yeah
+Well I'm moving down that line
+And it's been so long
+But I will be there
+I sing this song
+To pass the time away
+Driving in my car
+Driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}

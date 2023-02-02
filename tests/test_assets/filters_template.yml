@@ -13,6 +13,8 @@ path_extensions_dict:
   {{k}}: {{path[k]}}
 {% endfor %}
 
+prompt_envvar: {{ prompt_envvar('HOME') }}
+
 time_now: {{ time_now("%Y-%m-%dT%H:%M") }}
 
 nested_template:
