@@ -184,6 +184,24 @@ $ cat 0-template.html
 
 ```
 
+*basename*, *dirname*
+
+Straight python rips of os.path.basename and os.path.dirname
+
+```
+$ cat template.txt
+
+home: {{ path.home }}
+dirname: {{ path.home | dirname }}
+basename: {{ (path.home + '.ssh') | basename }}
+
+$ jinny -t template.txt
+home: /home/smashthings/
+dirname: /home/smashthings
+basename: .ssh
+
+```
+
 **Globals**
 
 *path*
@@ -297,6 +315,56 @@ I sing this song
 To pass the time away
 Driving in my car
 Driving to the bottlo for a big bag of cans
+
+
+```
+
+*list_files*
+
+list_files will take a directory path and will either recursively or not provide a list of all the files in that path.
+
+This is intended to be used with the **for** keyword for looping through files. Original usecase was for implementing files as keys in a kubernetes configmap.
+
+Note that the below example also makes use of *path*, *file_content* and *basename*, all of which are jinny additions and not in jinja.
+
+```
+$ cat configmap.yml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loadsofscripts
+data:
+{% for f in list_files(path.templatedir + '/scripts') %}
+  {{ f | basename }}: |
+{{ f | file_content | indent(4, first=True) }}
+{% endfor %}
+
+
+$ cat scripts/script1.sh
+#!/bin/bash
+echo "This is script one"
+
+$ cat scripts/script2.sh
+#!/bin/bash
+echo "This is script 2!"
+
+$ jinny -t configmap.yml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loadsofscripts
+data:
+  script1.sh: |
+    #!/bin/bash
+    echo "This is script one"
+
+
+  script2.sh: |
+    #!/bin/bash
+    echo "This is script 2!"
+
 
 
 ```

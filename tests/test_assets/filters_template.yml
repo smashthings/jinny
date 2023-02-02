@@ -19,3 +19,13 @@ time_now: {{ time_now("%Y-%m-%dT%H:%M") }}
 
 nested_template:
 {{ ( path.templatedir + "nested_template.yml" ) | nested_template | indent(2, first=True, blank=True) }}
+
+list_files:
+{% for f in list_files(path.templatedir + '/recursive_files', recursive=False) %}
+  {{ f | basename }}: {{ f | file_content | trim | indent(4, first=True) }}
+{%- endfor %}
+
+list_files_recursive:
+{% for f in list_files(path.templatedir + '/recursive_files', recursive=True) %}
+  {{ f | basename }}: {{ f | file_content | trim | indent(4, first=True) }}
+{% endfor %}

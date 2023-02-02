@@ -32,3 +32,8 @@ def tee(content, end:str="\n"):
   print(content + end)
   return content
 
+def basename(path:str):
+  return os.path.basename(path)
+
+def dirname(path:str):
+  return os.path.dirname(path)
