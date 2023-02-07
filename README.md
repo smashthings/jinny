@@ -369,6 +369,27 @@ data:
 
 ```
 
+
+*gen_uuid4*
+
+Generates a new version 4 UUID via the python uuid library. There's absolutely no memory on this so don't expect idempotency in your resulting templates. However, this is *awesome* for generating a load of dummy data
+
+```
+$ cat template.txt
+{% for f in range(5) %}
+{{ gen_uuid4() }}
+{% endfor %}
+
+$ jinny -t template.txt
+b251f634-a912-4868-bd03-e2ccc3ae7356
+4e136ef8-b106-42c9-b98c-9d61a833c523
+08f9a05a-01a3-4731-a591-3e07d9876c36
+7cc40da8-de29-4e37-80b9-fa3ca60ac0f0
+0e044ca0-36b8-4835-ac7c-c7fa5215fdcf
+
+
+```
+
 ## Packages used
 Check out src/jinny/requirements.txt
 

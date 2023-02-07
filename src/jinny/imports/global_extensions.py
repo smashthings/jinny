@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import uuid
 
 def time_now(fmt:str="%Y-%m-%dT%H:%M:%S.%f"):
   return datetime.datetime.now(datetime.timezone.utc).strftime(fmt)
@@ -32,3 +33,6 @@ def list_files(directory:str, recursive:bool=False, topdown:bool=True):
       for fi in files:
         returningFiles.append(f'{root}/{fi}')
   return returningFiles
+
+def gen_uuid4():
+  return uuid.uuid4()
