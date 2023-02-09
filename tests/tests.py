@@ -337,6 +337,18 @@ def test_time_now():
   assert extensionsOutput["list_files_recursive"]["test3.txt"] == "test3"
   assert extensionsOutput["list_files_recursive"]["test4.txt"] == "test4"
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_removeprefix():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["removeprefix"] == "factory"
+  assert extensionsOutput["dontremoveprefix"] == "mushroomfactory"
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_removesuffix():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["removesuffix"] == "mushroomfact"
+  assert extensionsOutput["dontremovesuffix"] == "mushroomfactory"
+
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
 def test_raw_templating():

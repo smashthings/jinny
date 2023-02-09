@@ -29,3 +29,9 @@ list_files_recursive:
 {% for f in list_files(path.templatedir + '/recursive_files', recursive=True) %}
   {{ f | basename }}: {{ f | file_content | trim | indent(4, first=True) }}
 {% endfor %}
+
+removeprefix: {{ "mushroomfactory" | removeprefix("mushroom") }}
+dontremoveprefix: {{ "mushroomfactory" | removeprefix("badger") }}
+
+removesuffix: {{ "mushroomfactory" | removesuffix("ory") }}
+dontremovesuffix: {{ "mushroomfactory" | removesuffix("badger") }}

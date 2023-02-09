@@ -37,3 +37,15 @@ def basename(path:str):
 
 def dirname(path:str):
   return os.path.dirname(path)
+
+def removeprefix(term:str, prefix:str):
+  if len(prefix) > len(term):
+    return term
+  return term[len(prefix):] if term[0:len(prefix)] == prefix else term
+
+def removesuffix(term:str, suffix:str):
+  if len(suffix) > len(term):
+    return term
+  endpoint = len(term) - len(suffix)
+  return term[0:endpoint] if term[endpoint:] == suffix else term
+

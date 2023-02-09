@@ -202,6 +202,31 @@ basename: .ssh
 
 ```
 
+*removesuffix*, *removeprefix*
+
+These are python 3.9 rips of the str methods. However, you might not have python3.9 so this is a nice python3 stand in.
+
+```
+$ cat template.txt
+
+removeprefix: {{ "mushroomfactory" | removeprefix("mushroom") }}
+dontremoveprefix: {{ "mushroomfactory" | removeprefix("badger") }}
+
+removesuffix: {{ "mushroomfactory" | removesuffix("ory") }}
+dontremovesuffix: {{ "mushroomfactory" | removesuffix("badger") }}
+
+$ jinny -t template.txt
+
+removeprefix: factory
+dontremoveprefix: mushroomfactory
+
+removesuffix: mushroomfact
+dontremovesuffix: mushroomfactory
+
+
+```
+
+
 **Globals**
 
 *path*
