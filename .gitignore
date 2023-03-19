@@ -2,3 +2,5 @@
 **/.pytest_cache
 src/jinny.egg-info
 dist
+
+draft.README.md

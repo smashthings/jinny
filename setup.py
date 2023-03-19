@@ -39,5 +39,9 @@ setuptools.setup(
         'console_scripts': [
             'jinny=jinny.jinny:Main',
         ],
-    }
+    },
+    install_requires=[
+        "Jinja2>=3.1.2",
+        "PyYAML>=6.0"
+    ]
 )
