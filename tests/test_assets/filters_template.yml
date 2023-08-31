@@ -14,6 +14,7 @@ path_extensions_dict:
 {% endfor %}
 
 prompt_envvar: {{ prompt_envvar('HOME') }}
+no_envvar_default: {{ get_envvar(var='ThereIsNotAnEnvVarHereAtThisValueSrsly', default='ketchup') }}
 
 time_now: {{ time_now("%Y-%m-%dT%H:%M") }}
 
@@ -35,3 +36,8 @@ dontremoveprefix: {{ "mushroomfactory" | removeprefix("badger") }}
 
 removesuffix: {{ "mushroomfactory" | removesuffix("ory") }}
 dontremovesuffix: {{ "mushroomfactory" | removesuffix("badger") }}
+
+censored_fixed_length: '{{ "four" | censor(fixed_length=3) }}'
+censored_different_vals: '{{ "four" | censor(vals=['X']) }}'
+censored_middle_only: '{{ "card_number" | censor(except_beginning=2, except_end=2) }}'
+

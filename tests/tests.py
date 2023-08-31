@@ -325,6 +325,7 @@ def test_time_now():
 def test_prompt_envvar():
   print(json.dumps(extensionsOutput, indent=2))
   assert extensionsOutput['prompt_envvar'] == os.environ['HOME']
+  assert extensionsOutput['no_envvar_default'] == 'ketchup'
 
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
 def test_time_now():
@@ -348,6 +349,13 @@ def test_removesuffix():
   print(json.dumps(extensionsOutput, indent=2))
   assert extensionsOutput["removesuffix"] == "mushroomfact"
   assert extensionsOutput["dontremovesuffix"] == "mushroomfactory"
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_censor():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["censored_fixed_length"] == "***"
+  assert extensionsOutput["censored_different_vals"] == "XXXX"
+  assert extensionsOutput["censored_middle_only"] == "ca*******er"
 
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")

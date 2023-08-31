@@ -152,9 +152,9 @@ function jd(){
 ## Enhancements
 Jinny is opinionated. This means that it does things like trim template whitespace by default so you don't have to debug whitespace in your output. However, it's also opinionated in that the base jinja filters and objects can and have been expanded to provide appropriate functionality that is common jinny's use cases.
 
-**Filters**
+### Filters
 
-*file_content*
+#### file_content
 
 Goes ahead and imports the raw content of a file into the template where called
 
@@ -181,7 +181,7 @@ html { font-weight: 900; }
 
 ```
 
-*nested_template*
+#### nested_template
 
 Imports and templates other templates with the same values as the master template has received. This may not be thread safe for non-GIL or other multithreaded implementations of python as it relies on pointer updates to a global variable from the root template. For CPython which is the vast majority of implementations and runtime this is totally fine.
 
@@ -210,7 +210,7 @@ html { font-weight: 600; }
 
 ```
 
-*print_stdout*, *print_stderr* & *tee*
+#### print_stdout, print_stderr & tee
 
 These filters will print to stdout, stderr or tee to stdout and continue to content. They're used for debugging, warnings and other elements.
 
@@ -244,7 +244,7 @@ $ cat 0-template.html
 
 ```
 
-*basename*, *dirname*
+#### basename, dirname
 
 Straight python rips of os.path.basename and os.path.dirname
 
@@ -262,7 +262,7 @@ basename: .ssh
 
 ```
 
-*removesuffix*, *removeprefix*
+#### removesuffix, removeprefix
 
 These are python 3.9 rips of the str methods. However, you might not have python3.9 so this is a nice python3 stand in.
 
@@ -286,11 +286,37 @@ dontremovesuffix: mushroomfactory
 
 ```
 
+#### censor
 
-**Globals**
+Censors the provided string with the ability to set the censor characters, skip censoring the first and/or last *n* characters or always set the censored string to *x* characters long.
 
-*path*
+```
+$ cat template.txt
+---
+censored_password: {{ req_envvar('PASSWORD') | censor }}
+censored_password_always_10_characters: {{ req_envvar('PASSWORD') | censor(fixed_length=10) }}
+censored_password_with_birds: "{{ req_envvar('PASSWORD') | censor(vals=['🐦‍']) }}"
+censored_password_except_first_2_characters: {{ req_envvar('PASSWORD') | censor(except_beginning=2) }}
+censor_everything_except_first_and_last_characters: {{ req_envvar('PASSWORD') | censor(except_beginning=1,except_end=1) }}
+passwords_are_always_five_frogs: "{{ req_envvar('PASSWORD') | censor(vals=['🐸'], fixed_length=5) }}"
 
+
+$ PASSWORD=mushrooms jinny -t template.txt
+---
+censored_password: *********
+censored_password_always_10_characters: **********
+censored_password_with_birds: "🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍"
+censored_password_except_first_2_characters: mu*******
+censor_everything_except_first_and_last_characters: m*******s
+passwords_are_always_five_frogs: "🐸🐸🐸🐸🐸"
+
+
+```
+
+
+### Globals
+
+#### path
 
 path is a global dict that is available on each template. It'll give you the variables for:
 
@@ -322,7 +348,7 @@ Rock and Stone!
 
 ```
 
-*time_now*
+#### time_now
 
 time_now will generate a timestamp at the UTC time that it's called and return the timestamp based on the provided format string based on datetime's strftime. If you don't provide a format it'll return the microsecond ISO timestamp
 
@@ -351,7 +377,7 @@ Or you could say Saturday the 365 day of 2022 which is also the 31 day of Decemb
 
 ```
 
-*prompt_envvar*
+#### prompt_envvar
 
 prompt_envvar will prompt you for environment variables that are missing as jinny reaches them in your template(s). Once you provide a value it will set that environment value and continue on, meaning that all other calls for that environment variable will recieve the same value.
 
@@ -404,7 +430,67 @@ Driving to the bottlo for a big bag of cans
 
 ```
 
-*list_files*
+#### req_envvar
+
+Checks for a required environment variable with custom message format as required if that environment variable is missing.
+
+```
+$ cat template.txt
+---
+super_secret: {{ req_envvar(var='PASSWORD', message_format="Need the password under var {0} yo", message_format_params=['PASSWORD']) }}
+
+$ jinny -t template.txt
+*********************
+<2023-08-31T19:59:35> - TemplateHandler.Render(): Failed to render template at 'template.txt' with an exception from Jinja, details:
+Type:<class 'Exception'>
+Value:jinny.global_extensions.req_envvar(): Need the password under var PASSWORD yo
+Trace:
+...
+
+
+$ PASSWORD=wizards jinny -t template.txt
+---
+super_secret: wizards
+
+
+```
+
+#### get_envvar
+
+Gets an environment variable from the environment and provides a default value if not found. Default value is an empty string so you can use template logic to check for set environment variables
+
+```
+$ cat template.txt
+---
+missing_env_var: {{ get_envvar(var='BADGERS', default='NO BADGERS') }}
+existing_env_var: {{ get_envvar('HOME') }}
+
+{% if get_envvar('BADGERS') | length %}
+We got {{ get_envvar('BADGERS') }} badgers from the environment variable BADGERS
+{% else %}
+The environment variable BADGERS didn't exist so we assume no badgers
+{% endif %}
+
+$ jinny -t template.txt
+---
+missing_env_var: NO BADGERS
+existing_env_var: /home/smasherofallthings
+
+The environment variable BADGERS didn't exist so we assume no badgers
+
+
+$ BADGERS=40 jinny -t template.txt
+---
+missing_env_var: 40
+existing_env_var: /home/smasherofallthings
+
+We got 40 badgers from the environment variable BADGERS
+
+
+```
+
+
+#### list_files
 
 list_files will take a directory path and will either recursively or not provide a list of all the files in that path.
 
@@ -455,7 +541,7 @@ data:
 ```
 
 
-*gen_uuid4*
+#### gen_uuid4
 
 Generates a new version 4 UUID via the python uuid library. There's absolutely no memory on this so don't expect idempotency in your resulting templates. However, this is *awesome* for generating a load of dummy data
 

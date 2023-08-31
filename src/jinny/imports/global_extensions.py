@@ -17,6 +17,17 @@ def prompt_envvar(var:str):
   os.environ[var] = newVal
   return newVal
 
+def req_envvar(var:str, message_format:str=None, message_format_params:list=[]):
+  if var in os.environ:
+    return os.environ[var]
+  if message_format == None:
+    message_format = "Missing required environment variable '{0}'!"
+    message_format_params = [var]
+  raise Exception(f'jinny.global_extensions.req_envvar(): ' + message_format.format(*message_format_params))
+
+def get_envvar(var:str, default:str=""):
+  return os.environ[var] if var in os.environ else default
+
 def list_files(directory:str, recursive:bool=False, topdown:bool=True):
   wd = os.path.abspath(directory)
   if not os.path.exists(wd):

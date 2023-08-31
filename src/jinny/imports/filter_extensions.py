@@ -2,6 +2,8 @@
 
 import os
 import sys
+import random
+import string
 
 def file_content(filename):
   if os.path.exists(filename):
@@ -48,4 +50,12 @@ def removesuffix(term:str, suffix:str):
     return term
   endpoint = len(term) - len(suffix)
   return term[0:endpoint] if term[endpoint:] == suffix else term
+
+def censor(term:str, except_beginning:int=0, except_end:int=0, vals:list=['*'], fixed_length:int=0):
+  if fixed_length > 0:
+    return ''.join(random.choice(vals) for x in range(fixed_length))
+  l = len(term)
+  if l <= (except_beginning + except_end):
+    raise Exception(f"jinny.filter_extenions.censor(): Length of value to be censored is {l} excepting {except_beginning} characters at the beginning and {except_end} at the end. These settings would lead to the value not being censored at all!")
+  return term[0:except_beginning] + ''.join(random.choice(vals) for x in range(l - except_beginning - except_end)) + term[l-except_end:l]
 
