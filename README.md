@@ -601,17 +601,17 @@ function jd(){
 
 ### Other Considered Templating Tools
 
-*Go Templating*
+*Go Templating* \
 The context loss on loops drives me mad and makes nested loops near unusable. Sure there's work arounds but a workaround you have to use every time is not something I want in my life.
 
-*Mustache*
+*Mustache* \
 Great until you need logic. I often hit this limitation.
 
-*Handlebars*
+*Handlebars* \
 Great, although I do remember hitting some ugly limitations with it that I can't quite remember. Also it's js native and I find ops work to be procedural and therefore an async native runtime to be cumbersome.
 
-*Pug*
+*Pug* \
 It's HTML specific and I need something that works with *everything*. I'm on the frontlines man, sometimes I'm in the tank, sometimes I'm on the missle turret, I need a single unified interface.
 
-*Jinja*
+*Jinja* \
 Extensible. Simple syntax. Written in my most used procedural language. Low to no dependencies. Room for advancement. Documented. Battle hardened. 😙🤌
