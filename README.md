@@ -6,21 +6,18 @@
 
 Jinny is a templating tool for jinja templates. It can be used for a number of things but was created from a DevOps perspective to aid in configuration management for scaled deployments instead of using tools like Helm, Kustomize, jinja-cli, etc. These days jinny is still used for Ops work but is also used for live applications handling email templating, static HTML generation and more
 
-## Use Cases & Why
+## Use Cases
 
-The 2020's of software usually include mashing together different/underlying/proxied systems that need to be able to scale, adapt and transform in unstable environments (no pets, black box providers, etc) and unstable direction. This means you're running applications and controlling services that lead to a mass of config that needs to change on a whim. Add to this the need to pass this through various CI/CD pipelines and there's a need for a templating application that is:
+Some example use cases will be provided in `examples/*`, at a high level jinny has been used for:
 
-- Command line controlled
-- Can take multiple JSON & YAML template inputs
-- Can take multiple Jinja based templates
-- Can choose to template out to stdout, to separate files, to one big file
-- Allows for cascading overwriting of inputs
-- Alows the utilising of a seasoned templating language with some room for adding functionality
-- Stable - uses simple and reliable libraries and doesn't need constant maintenance. We don't want this failing our pipelines or botching deployments
+- A lightweight templating tool for Kubernetes manifests
+- Templating environment variable files for use with docker images
+- Email & HTTP templating within AWS Lambda functions
+- Local development templating for static frontends
 
-For example, Jinny was originally conceived as a way to handle templating of Kubernetes manifests rather than using Helm or other Go templating tools. Helm is overengineered for what I often need and usually comes with unwanted issues such as nuking production environments (your milage may vary). Jinny doesn't attempt Kubernetes package management, whatever that is, and instead just sticks to templating such that you as the Ops engineer can choose how, when or what to apply.
 
 ## CLI Usage Examples
+
 ```
 
 => Templating multiple templates with a single input file:
@@ -89,74 +86,15 @@ print(tmpl.result)
 
 ```
 
-## Kubernetes
-With the move to Kubernetes the amount of templating and general boilerplate become quite heavy going. There's less coding of systems and more grabbing what's on the OSS shelf and slamming config into it until it does what you need it to do. I understand the reasoning for it, but a major side effect is that what there's less 'writing code' and more 'managing config'.
-
-In Kubernetes land the dominant technology is Helm. Helm and Jinny both do templating. Helm will also attempt deployment management, but I've also found it used just for the templating.
-
-A large motivator behind Jinny was the contempt I have for Helm. Out of the templating tools that I have used, Jinja is the only one I liked coming back to.† Helm templates feel like a significant downgrade. I also hate Helm atrocious deployment management, however, I couldn't rip Helm out of an environment without at least replacing the templating function. Jinny is there to fill that gap.
-
-Jinny doesn't interface directly with Kubernetes. It probably never will as that risks both insourcing the Kubernetes APIs and expanding the packaging footprint for Jinny, which is a Python application. [I also can't state how much I do not want to deal with this](https://raw.githubusercontent.com/kubernetes-client/python/055fa706b8677207091251998dca80cab5d5afb0/kubernetes/client/api/core_v1_api.py).
-
-If I rationalise what interaction I want between Jinny and K8s, it's essentially:
-
-    jinny template * | kubectl <apply|delete> -f -
-
-So I add that functionality into a couple of shell functions:
-
-*jk* | *kubectl apply*
-jk is the name I gave the function but you can use whatever you want. Add this to your shell's run command script at `${HOME}/.bashrc` or similar:
-
-```
-
-function jk(){
-  tmp=$(tempfile)
-  jinny --stdout-seperator='---' -t "${@}" > $tmp
-  if [[ $? == "0" ]]; then
-    kubectl apply -f $tmp
-  else
-    cat $tmp
-  fi
-  rm -rf $tmp
-}
-
-```
-
-The stdout-separator argument places yml separators on each file that you pass through, meaning that you can do cool things like mash in various files and have them all apply at once. The caveats with this approach being:
-
-- There's no input files
-- Relies on tempfile and kubectl being installed
-- Writes a file to disk or wherever volume tempfile is configured to write to
-- It's compatible with my bash/zsh setup but you need to check your own
-
-I'm cool with all of that so works well for me.
-
-*jd* | *kubectl delete*
-Is basically the same function but calls 
-
-```
-function jd(){
-  tmp=$(tempfile)
-  jinny --stdout-seperator='---' -t "${@}" > $tmp
-  if [[ $? == "0" ]]; then
-    kubectl delete -f $tmp
-  else
-    cat $tmp
-  fi
-  rm -rf $tmp
-}
-```
-
-† A summary of templating tools I considered are at the end of this readme for the curious.
-
 ## Enhancements
-Jinny is opinionated. This means that it does things like trim template whitespace by default so you don't have to debug whitespace in your output. However, it's also opinionated in that the base jinja filters and objects can and have been expanded to provide appropriate functionality that is common jinny's use cases.
+
+Jinny is opinionated. This means that it makes choices and provides functionality outside of the standard Jinja toolset. One opinion includes automatically trimming template whitespace leaving outputs easier to read. Additionally, the below filters and global functions have been added to improve jinny's usefulness out in the wild.
 
 ### Filters
 
 #### file_content
 
-Goes ahead and imports the raw content of a file into the template where called
+Fully imports the raw content of a file into the template where called:
 
 ```
 $ cat template.html
@@ -185,7 +123,7 @@ html { font-weight: 900; }
 
 Imports and templates other templates with the same values as the master template has received. This may not be thread safe for non-GIL or other multithreaded implementations of python as it relies on pointer updates to a global variable from the root template. For CPython which is the vast majority of implementations and runtime this is totally fine.
 
-Benefit of this approach is dodging passing the value stack through the Jinja codebase which can be prone to breaking in Jinja updates and adds a substantial overhead to route and debug.
+The benefit of this approach is dodging passing the value stack through the Jinja codebase which can be prone to breaking in Jinja updates and adds a substantial overhead to route and debug. This functionality is well outside of the Jinja's intended design. If you don't want to deviate too far from Jinja then don't use it.
 
 ```
 $ cat template.html
@@ -214,9 +152,9 @@ html { font-weight: 600; }
 
 These filters will print to stdout, stderr or tee to stdout and continue to content. They're used for debugging, warnings and other elements.
 
-You are going to want to run this with -d or -di options so that resulting templates are written to files rather than dumped to standard out.
+You are going to want to run this with -d or -di options so that resulting templates are written to files rather than dumped to standard out. Not doing that will mix the output of these filters into your template output. 
 
-With those options it means you can do cool things like this where the templating process itself can be annotated:
+With that caveat in mind this allows for template annotations within the templating process telling you what's going on without having to analyse the output:
 
 ```
 $ cat template.html
@@ -264,7 +202,7 @@ basename: .ssh
 
 #### removesuffix, removeprefix
 
-These are python 3.9 rips of the str methods. However, you might not have python3.9 so this is a nice python3 stand in.
+These are rips of the str methods available in Python 3.9 onwards. However, you might be running a version earlier than 3.9, hence these functions are stand alone and can be used in any Python 3 version.
 
 ```
 $ cat template.txt
@@ -326,7 +264,7 @@ path is a global dict that is available on each template. It'll give you the var
 - templatedir - the directory of the template currently being templated
 - home - the home directory
 
-These are global values so you can access them whenever and easily combined them into paths that work locally or in unstable environments such as inside pipelines
+These are global values so you can access them whenever and easily combine them into paths that work locally or in unstable environments such as pipelines
 
 ```
 $ cat template.txt
@@ -350,7 +288,7 @@ Rock and Stone!
 
 #### time_now
 
-time_now will generate a timestamp at the UTC time that it's called and return the timestamp based on the provided format string based on datetime's strftime. If you don't provide a format it'll return the microsecond ISO timestamp
+time_now will generate a UTC timestamp at the point that the function is called. It will provide a microsecond ISO timestamp but with arguments you can provide a strftime compatible string to get the exact output that you're after.
 
 https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
 
@@ -379,7 +317,7 @@ Or you could say Saturday the 365 day of 2022 which is also the 31 day of Decemb
 
 #### prompt_envvar
 
-prompt_envvar will prompt you for environment variables that are missing as jinny reaches them in your template(s). Once you provide a value it will set that environment value and continue on, meaning that all other calls for that environment variable will recieve the same value.
+prompt_envvar will prompt you for environment variables that are missing as jinny reaches them in your template(s). Once you provide a value it will set that as an environment variable and continue on, meaning that all other calls for that environment variable will recieve the same value.
 
 This is useful for one off values that don't need to be committed to code or for values that you want to ask for at run time such as passwords.
 
@@ -432,7 +370,9 @@ Driving to the bottlo for a big bag of cans
 
 #### req_envvar
 
-Checks for a required environment variable with custom message format as required if that environment variable is missing.
+Checks for a required environment variable without prompting. Can take a custom message format and parameters for the printed error message if the environment variable is missing. This follows the same message format as string.format:
+
+https://docs.python.org/3/library/string.html#string.Formatter.format
 
 ```
 $ cat template.txt
@@ -457,7 +397,7 @@ super_secret: wizards
 
 #### get_envvar
 
-Gets an environment variable from the environment and provides a default value if not found. Default value is an empty string so you can use template logic to check for set environment variables
+Gets an environment variable from the environment and provides a default value if not found. If a default value is not provided get_envvar will return an empty string. Returning an empty string allows for template logic to react to missing environment variables
 
 ```
 $ cat template.txt
@@ -543,7 +483,9 @@ data:
 
 #### gen_uuid4
 
-Generates a new version 4 UUID via the python uuid library. There's absolutely no memory on this so don't expect idempotency in your resulting templates. However, this is *awesome* for generating a load of dummy data
+Generates a new version 4 UUID via the python uuid library. There's absolutely no memory on this so don't expect idempotency in your resulting templates, ie every time you run the template you'll get different UUIDs. 
+
+This is *awesome* for generating a load of dummy data
 
 ```
 $ cat template.txt
@@ -562,6 +504,7 @@ b251f634-a912-4868-bd03-e2ccc3ae7356
 ```
 
 ## Packages used
+
 Check out src/jinny/requirements.txt
 
 As of December 2022 only PyYAML and Jinja2 are used outside the standard library
@@ -569,7 +512,7 @@ As of December 2022 only PyYAML and Jinja2 are used outside the standard library
 ## FAQs
 
 *Will jinny ever integrate with Kubernetes directly?*  
-No. See above for an example of a workable approach.
+No. See below for an example of a workable approach.
 
 *What about Windows?*  
 My Windows days are behind me and I'm not coming back to it. If you'll like to PR it in go for it, however I'm neither motivated nor tooled up to maintain support for Windows.
@@ -584,7 +527,79 @@ https://guidedogstas.com.au/supportus/donate/
 *Can you offer support?*  
 jinny is simple enough that your problem isn't likely to be jinny itself. If it is then open up an issue here on Gitlab or on Github.
 
-## Templating Languages
+## Why
+
+The 2020's of software usually include mashing together different/underlying/proxied systems that need to be able to scale, adapt and transform in unstable environments (no pets, black box providers, etc) and unstable direction. This means you're running applications and controlling services that lead to a mass of config that needs to change on a whim. Add to this the need to pass this through various CI/CD pipelines and there's a need for a templating application that is:
+
+- Command line controlled
+- Can take multiple JSON & YAML template inputs
+- Can take multiple Jinja based templates
+- Can choose to template out to stdout, to separate files, to one big file
+- Allows for cascading overwriting of inputs
+- Alows the utilising of a seasoned templating language with some room for adding functionality
+- Stable - uses simple and reliable libraries and doesn't need constant maintenance. We don't want this failing our pipelines or botching deployments
+
+For example, Jinny was originally conceived as a way to handle templating of Kubernetes manifests rather than using Helm or other Go templating tools. Helm is overengineered for what I often need and usually comes with unwanted issues such as nuking production environments (your milage may vary). Jinny doesn't attempt Kubernetes package management, whatever that is, and instead just sticks to templating such that you as the Ops engineer can choose how, when or what to apply.
+
+## Kubernetes
+With the move to Kubernetes the amount of templating and general boilerplate become quite heavy going. There's less coding of systems and more grabbing what's on the OSS shelf and slamming config into it until it does what you need it to do. I understand the reasoning for it, but a major side effect is that what there's less 'writing code' and more 'managing config'.
+
+In Kubernetes land the dominant technology is Helm. Helm and Jinny both do templating. Helm will also attempt deployment management, but I've also found it used just for the templating.
+
+A large motivator behind Jinny was the contempt I have for Helm. Out of the templating tools that I have used, Jinja is the only one I liked coming back to.† Helm templates feel like a significant downgrade. I also hate Helm atrocious deployment management, however, I couldn't rip Helm out of an environment without at least replacing the templating function. Jinny is there to fill that gap.
+
+Jinny doesn't interface directly with Kubernetes. It probably never will as that risks both insourcing the Kubernetes APIs and expanding the packaging footprint for Jinny, which is a Python application. [I also can't state how much I do not want to deal with this](https://raw.githubusercontent.com/kubernetes-client/python/055fa706b8677207091251998dca80cab5d5afb0/kubernetes/client/api/core_v1_api.py).
+
+If I rationalise what interaction I want between Jinny and K8s, it's essentially:
+
+    jinny template * | kubectl <apply|delete> -f -
+
+So I add that functionality into a couple of shell functions:
+
+*jk* | *kubectl apply*
+jk is the name I gave the function but you can use whatever you want. Add this to your shell's run command script at `${HOME}/.bashrc` or similar:
+
+```
+
+function jk(){
+  tmp=$(tempfile)
+  jinny --stdout-seperator='---' -t "${@}" > $tmp
+  if [[ $? == "0" ]]; then
+    kubectl apply -f $tmp
+  else
+    cat $tmp
+  fi
+  rm -rf $tmp
+}
+
+```
+
+The stdout-separator argument places yml separators on each file that you pass through, meaning that you can do cool things like mash in various files and have them all apply at once. The caveats with this approach being:
+
+- There's no input files
+- Relies on tempfile and kubectl being installed
+- Writes a file to disk or wherever volume tempfile is configured to write to
+- It's compatible with my bash/zsh setup but you need to check your own
+
+I'm cool with all of that so works well for me.
+
+*jd* | *kubectl delete*
+Is basically the same function but calls 
+
+```
+function jd(){
+  tmp=$(tempfile)
+  jinny --stdout-seperator='---' -t "${@}" > $tmp
+  if [[ $? == "0" ]]; then
+    kubectl delete -f $tmp
+  else
+    cat $tmp
+  fi
+  rm -rf $tmp
+}
+```
+
+### Other Considered Templating Tools
 
 *Go Templating*
 The context loss on loops drives me mad and makes nested loops near unusable. Sure there's work arounds but a workaround you have to use every time is not something I want in my life.
