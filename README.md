@@ -92,6 +92,8 @@ Jinny is opinionated. This means that it makes choices and provides functionalit
 
 ### Filters
 
+Filters take passed in content via jinja pipes so tend to be used for chaining together and manipulating text provided to them.
+
 #### file_content
 
 Fully imports the raw content of a file into the template where called:
@@ -312,6 +314,8 @@ $ cat colours.txt
 
 
 ### Globals
+
+Globals are standalone properties that can be called like global functions or global variables. Some of Jinny's global functions will require parameters, if you miss providing these required parameters your template will helpfully and violently crash.
 
 #### path
 
