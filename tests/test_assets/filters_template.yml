@@ -41,3 +41,5 @@ censored_fixed_length: '{{ "four" | censor(fixed_length=3) }}'
 censored_different_vals: '{{ "four" | censor(vals=['X']) }}'
 censored_middle_only: '{{ "card_number" | censor(except_beginning=2, except_end=2) }}'
 
+b64encode: "{{ 'potus:00000000' | b64encode }}"
+b64decode: "{{ 'cG90dXM6MDAwMDAwMDA=' | b64decode }}"

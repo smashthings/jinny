@@ -4,6 +4,7 @@ import os
 import sys
 import random
 import string
+import base64
 
 AnsiMap = {
   'end': '0',
@@ -111,3 +112,8 @@ def decorate(s: str, style:str):
     raise Exception(f"jinny.filter_extenions.decoration(): The provided decoration '{style}' is not registered as an ansi escape code in Jinny. Please check the documentation!")
   return f'\033[{AnsiMap[style.lower()]}m' + s + '\033[0m'
 
+def b64encode(s: str):
+  return base64.b64encode(s.encode()).decode()
+
+def b64decode(s: str):
+  return base64.b64decode(s.encode()).decode()

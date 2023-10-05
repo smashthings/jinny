@@ -357,6 +357,12 @@ def test_censor():
   assert extensionsOutput["censored_different_vals"] == "XXXX"
   assert extensionsOutput["censored_middle_only"] == "ca*******er"
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_base64():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["b64encode"] == "cG90dXM6MDAwMDAwMDA="
+  assert extensionsOutput["b64decode"] == "potus:00000000"
+
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
 def test_raw_templating():

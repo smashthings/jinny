@@ -313,6 +313,28 @@ $ cat colours.txt
 </p>
 
 
+#### b64encode, b64decode
+
+Amazingly, the encode and decode functions found in Ansible are not in plain jinja. Jinny has them implemented though:
+
+```
+$ cat template.yml
+---
+username: "{{ req_envvar('SECRET_USERNAME')}}"
+password: "{{ req_envvar('SECRET_PASSWORD')}}"
+authorization_header = "Basic {{ (req_envvar('SECRET_USERNAME') + ':' + req_envvar('SECRET_PASSWORD')) | b64encode }}"
+
+
+$ SECRET_USERNAME=potus SECRET_PASSWORD=00000000 jinny -t template.yml
+---
+username: "potus"
+password: "00000000"
+authorization_header = "Basic cG90dXM6MDAwMDAwMDA="
+
+
+```
+
+
 ### Globals
 
 Globals are standalone properties that can be called like global functions or global variables. Some of Jinny's global functions will require parameters, if you miss providing these required parameters your template will helpfully and violently crash.
