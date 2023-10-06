@@ -262,6 +262,34 @@ def test_cli_with_explicit_values():
   assert status == 0
   assert results[0]["spec"]["ports"][0]["port"] == 8000
 
+def test_cli_with_env_file_parsing():
+  templFile = f"{assetsDir}/sample_env_values.yml"
+  valuesFile = f'{assetsDir}/sample_env_values.env'
+  status, stdout, stderr = RunCmd([
+    "python3",
+    f'{jinnyDir}/jinny.py',
+    "-i",
+    valuesFile,
+    "-t",
+    templFile
+    ])
+  
+  results = list(yaml.load_all(stdout, Loader=yaml.FullLoader))
+
+  print(stdout)
+  # print(stderr)
+  # print(status)
+  assert status == 0
+  assert results[0]['b64_encoded_multiline'] == 'bm9vbmUgc2hvdWxkIHJlYWxseSBiZSBkb2luZyB0aGlzCmJ1dCBqaW5ueSBtYWtlcyBhIHRva2VuIGVmZm9ydAp0byBjb21iaW5lIG11bHRpbGluZSBlbnZpcm9ubWVudCB2YXJpYWJsZXMKanVzdCBkb24ndCBwdXQgYW4gZXF1YWxzIGNoYXJhY3RlciBpbiBpdCBmZnM='
+  assert results[0]['name'] == 'frank the big old tank'
+  assert results[0]['hot_tip'] == 'you should send me some wine gums'
+
+  # This strips from the fed in value as the yaml parser adds a new line. Parsing into parsing into parsing into other parsing
+  # Seriously just base64 encode your junk
+  assert results[0]['multiline'].rstrip('\n') == '''noone should really be doing this\nbut jinny makes a token effort\nto combine multiline environment variables\njust don't put an equals character in it ffs'''
+
+
+
 ##########################################
 # Extensions
 

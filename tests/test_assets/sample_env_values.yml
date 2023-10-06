@@ -1,0 +1,5 @@
+name: {{ NAME }}
+b64_encoded_multiline: {{ MULTILINE_NONSENSE | b64encode }}
+hot_tip: {{ HOT_TIP }}
+multiline: |
+  {{ MULTILINE_NONSENSE | indent(2) }}

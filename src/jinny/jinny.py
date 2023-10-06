@@ -172,11 +172,14 @@ def ParseValuesFile(path:str):
   else:
     ext = None
   finalObj = None
-  with open(path) as f:
-    fileData = f.read()
+  if not os.path.isfile(path):
+    Log(f"Main(): Inputs file at path '{path}' doesn't exist.", AlwaysLog=True)
+    Log("Main(): Exiting!", quitWithStatus=2)
 
   if ext == "yaml" or ext == "yml":
     try:
+      with open(path) as f:
+        fileData = f.read()
       ymlObj = yaml.load(fileData, Loader=yaml.FullLoader)
       return ymlObj
     except Exception as e:
@@ -188,6 +191,8 @@ def ParseValuesFile(path:str):
 
   elif ext == "json":
     try:
+      with open(path) as f:
+        fileData = f.read()
       jsonObj = json.loads(fileData)
       return jsonObj
     except Exception as e:
@@ -196,6 +201,32 @@ def ParseValuesFile(path:str):
         Log(f'Main(): Full stack trace:\n\n{traceback.format_exc()}', AlwaysLog=True)
       Log(f"Main(): Error: {getattr(e, 'msg')} at line {getattr(e, 'lineno')} column {e.colno}", AlwaysLog=True)
       Log("Main(): Exiting!", quitWithStatus=2)
+
+  elif ext == "env":
+    returningVals = {}
+    lastKey = None
+    with open(path) as f:
+      for ln, l in enumerate(f.readlines()):
+        st = l.strip()
+        if not st or st[0] == '#':
+          continue
+        s = l.split('=')
+        le = len(s)
+        if le >= 2:
+          returningVals[s[0]] = '='.join(s[1:]).rstrip('\n')
+          lastKey = s[0]
+          continue
+        elif le == 1 and lastKey != None:
+          # Appending this value onto the end of the last value with a new line intermediary
+          returningVals[lastKey] = returningVals[lastKey] + '\n' + s[0].rstrip('\n')
+          continue
+        elif le == 1 and lastKey == None:
+          Log(f"Main(): Error: Could not understand environment file at line {ln}. There hasn't been a previous key parsed yet this line does not have a key=value format. Not sure what to do. If this is a comment then prepend the line with #", AlwaysLog=True)
+          Log("Main(): Exiting!", quitWithStatus=2)
+        else:
+          Log(f"Main(): Error: Could not understand environment file at line {ln}. This line did not parse as a key=value format. Not sure what to do.", AlwaysLog=True)
+          Log("Main(): Exiting!", quitWithStatus=2)
+    return returningVals
 
   else:
     try:

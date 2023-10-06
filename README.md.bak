@@ -13,7 +13,7 @@ Some example use cases will be provided in `examples/*`, at a high level jinny h
 - A lightweight templating tool for Kubernetes manifests
 - Templating environment variable files for use with docker images
 - Email & HTTP templating within AWS Lambda functions
-- Local development templating for static front-ends
+- Local development templating for static frontends
 
 
 ## CLI Usage Examples
@@ -91,7 +91,7 @@ print(tmpl.result)
 
 ## Enhancements
 
-Jinny is opinionated. This means that it makes choices and provides functionality outside of the standard Jinja toolset. One opinion includes automatically trimming template white-space leaving outputs easier to read. Additionally, the below filters and global functions have been added to improve jinny's usefulness out in the wild.
+Jinny is opinionated. This means that it makes choices and provides functionality outside of the standard Jinja toolset. One opinion includes automatically trimming template whitespace leaving outputs easier to read. Additionally, the below filters and global functions have been added to improve jinny's usefulness out in the wild.
 
 ### Filters
 
@@ -126,7 +126,7 @@ html { font-weight: 900; }
 
 #### nested_template
 
-Imports and templates other templates with the same values as the master template has received. This may not be thread safe for non-GIL or other multi-threaded implementations of python as it relies on pointer updates to a global variable from the root template. For CPython which is the vast majority of implementations and run-time this is totally fine.
+Imports and templates other templates with the same values as the master template has received. This may not be thread safe for non-GIL or other multithreaded implementations of python as it relies on pointer updates to a global variable from the root template. For CPython which is the vast majority of implementations and runtime this is totally fine.
 
 The benefit of this approach is dodging passing the value stack through the Jinja codebase which can be prone to breaking in Jinja updates and adds a substantial overhead to route and debug. This functionality is well outside of the Jinja's intended design. If you don't want to deviate too far from Jinja then don't use it.
 
@@ -157,7 +157,7 @@ html { font-weight: 600; }
 
 These filters will print to stdout, stderr or tee to stdout and continue to content. They're used for debugging, warnings and other elements.
 
-You are going to want to run this with `-d` or `-di` options so that resulting templates are written to files rather than dumped to standard out. Not doing that will mix the output of these filters into your template output. 
+You are going to want to run this with -d or -di options so that resulting templates are written to files rather than dumped to standard out. Not doing that will mix the output of these filters into your template output. 
 
 With that caveat in mind this allows for template annotations within the templating process telling you what's going on without having to analyse the output:
 
@@ -405,7 +405,7 @@ Or you could say Saturday the 365 day of 2022 which is also the 31 day of Decemb
 
 #### prompt_envvar
 
-prompt_envvar will prompt you for environment variables that are missing as jinny reaches them in your template(s). Once you provide a value it will set that as an environment variable and continue on, meaning that all other calls for that environment variable will receive the same value.
+prompt_envvar will prompt you for environment variables that are missing as jinny reaches them in your template(s). Once you provide a value it will set that as an environment variable and continue on, meaning that all other calls for that environment variable will recieve the same value.
 
 This is useful for one off values that don't need to be committed to code or for values that you want to ask for at run time such as passwords.
 
@@ -421,7 +421,7 @@ But I will be there
 I sing this song
 To pass the time away
 Driving in my car
-Driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}
+Driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}%   
 
 $ jinny -t template.txt
 Please set variable 'destination':
@@ -522,7 +522,7 @@ We got 40 badgers from the environment variable BADGERS
 
 list_files will take a directory path and will either recursively or not provide a list of all the files in that path.
 
-This is intended to be used with the `for` keyword for looping through files. Original use-case was for implementing files as keys in a Kubernetes ConfigMap.
+This is intended to be used with the **for** keyword for looping through files. Original usecase was for implementing files as keys in a kubernetes configmap.
 
 Note that the below example also makes use of *path*, *file_content* and *basename*, all of which are jinny additions and not in jinja.
 
@@ -593,19 +593,19 @@ b251f634-a912-4868-bd03-e2ccc3ae7356
 
 ## Input Files
 
-Jinny will read the file extension of provided input files to work out if they're JSON, YAML or .env files. If you don't have an extension on the filename then jinny will attempt parsing in YAML and then JSON. It won't try .env as it's a very easy to misinterpret .env files.
+Jinny will read the file extension of provided input files to work out if they're json, yaml or .env files. If you don't have an extension on the filename then jinny will attempt parsing in yaml and then json. It won't try .env as it's a very easy to misinterpret .env files.
 
 Environment files MUST end with `.env` to be parsed as environment files. Jinny has a very simple logic to parsing environment files as inputs into jinny
 
 - Jinny will read the file line by line
-- Each line will be split at the first `=`. Therefore your values can contain `=`. This is a dumb split and thus won't care if your keys are non-POSIX. See below for examples
-- Jinny will make a fair effort to handle multi-line values. Read below for more details
+- Each line will be split at the first '='. Therefore your values can contain '='. This is a dumb split and thus won't care if your keys are non-POSIX. See below for examples
+- Jinny will make a fair effort to handle multiline values. Read below for more details
 - Jinny will skip commented lines - ie. starting with a `#`
 - Jinny will ignore blank lines
 
-### Multi-line Values
+### Multiline Values
 
-Jinny makes a fair effort to interpret multi-line values. Ideally you *shouldn't be doing this* as multi-line values get interpreted differently across a whole host of shells and other programmes. You *should* be base64 encoding your values that have special characters - including new line characters - and setting the encoded result as the value. However, I have seen multi-line values used so often that Jinny will make a fair effort to handle them. There's no promises that this will do exactly what you want and you need to be wary of new lines added / interpreted / missed at the end of your value.
+Jinny makes a fair effort to interpret multiline values. Ideally you *shouldn't be doing this* as multiline values get interpretted differently across a whole host of shells and other programmes. You *should* be base64 encoding your values that have special characters - including new line characters - and setting the encoded result as the value. However, I have seen multiline values used so often that Jinny will make a fair effort to handle them. There's no promises that this will do exactly what you want and you need to be wary of new lines added / interpreted / missed at the end of your value.
 
 
 ### Examples
@@ -621,8 +621,7 @@ DUMB_PROCESSING= space at beginning
 
 MULTILINE_NONSENSE=this value goes on for multiple lines. As the next line won't include a '=' character Jinny will append the next line to this line with a new line character in the middle
 ideally though, you shouldn't be using multiline values like this
-NEXT_VALUE=This is now a separate value
-# {"MULTILINE_NONSENSE": "this value goes on for multiple lines. As the next line won't include a '=' character Jinny will\nappend the next line to this line with a new line character in the middle\nideally though, you shouldn't be using multiline values like this", "NEXT_VALUE": "This is now a separate value"}
+# {"MULTILINE_NONSENSE": "this value goes on for multiple lines. As the next line won't include a '=' character Jinny will\nappend the next line to this line with a new line character in the middle\nideally though, you shouldn't be using multiline values like this"}
 
 ```
 
@@ -659,27 +658,25 @@ The 2020's of software usually include mashing together different/underlying/pro
 - Can take multiple Jinja based templates
 - Can choose to template out to stdout, to separate files, to one big file
 - Allows for cascading overwriting of inputs
-- Allows the utilising of a seasoned templating language with some room for adding functionality
+- Alows the utilising of a seasoned templating language with some room for adding functionality
 - Stable - uses simple and reliable libraries and doesn't need constant maintenance. We don't want this failing our pipelines or botching deployments
 
-For example, Jinny was originally conceived as a way to handle templating of Kubernetes manifests rather than using Helm or other Go templating tools. Helm is over-engineered for what I often need and usually comes with unwanted issues such as nuking production environments (your mileage may vary). Jinny doesn't attempt Kubernetes package management, whatever that is, and instead just sticks to templating such that you as the Ops engineer can choose how, when or what to apply.
+For example, Jinny was originally conceived as a way to handle templating of Kubernetes manifests rather than using Helm or other Go templating tools. Helm is overengineered for what I often need and usually comes with unwanted issues such as nuking production environments (your milage may vary). Jinny doesn't attempt Kubernetes package management, whatever that is, and instead just sticks to templating such that you as the Ops engineer can choose how, when or what to apply.
 
 ## Kubernetes
 With the move to Kubernetes the amount of templating and general boilerplate become quite heavy going. There's less coding of systems and more grabbing what's on the OSS shelf and slamming config into it until it does what you need it to do. I understand the reasoning for it, but a major side effect is that what there's less 'writing code' and more 'managing config'.
 
-The dominant technology for managing Kubernetes configuration is Helm. Helm and Jinny both do templating. Helm will also attempt deployment management, but I've also found it used just for the templating.
+In Kubernetes land the dominant technology is Helm. Helm and Jinny both do templating. Helm will also attempt deployment management, but I've also found it used just for the templating.
 
-A large motivator behind Jinny was the state of Helm. During my professional career I've witnessed Helm commit significant financial damage through its unreliability, poor logic and its flawed attempts to do too much. Helm templating is a significant downgrade to what Jinja can provide. Helm's deployment management is a source of woe. You can read more about this [here.](https://southall.solutions/articles/helm-an-overview/)
+A large motivator behind Jinny was the contempt I have for Helm. Out of the templating tools that I have used, Jinja is the only one I liked coming back to.† Helm templates feel like a significant downgrade. I also hate Helm atrocious deployment management, however, I couldn't rip Helm out of an environment without at least replacing the templating function. Jinny is there to fill that gap.
 
-Additionally, templating related requirements have arisen for which there hasn't been suitable tooling. Email templating. Generating NGINX configurations based on the existence of relevant environment variables. Creating reports based on environment variables that can censor sensitive data as required. Jinny has grown to cover these additional use cases as well as handle Kubernetes.
+Jinny doesn't interface directly with Kubernetes. It probably never will as that risks both insourcing the Kubernetes APIs and expanding the packaging footprint for Jinny, which is a Python application. [I also can't state how much I do not want to deal with this](https://raw.githubusercontent.com/kubernetes-client/python/055fa706b8677207091251998dca80cab5d5afb0/kubernetes/client/api/core_v1_api.py).
 
-Jinny doesn't interface directly with Kubernetes as it only handles the templating. How you deploy to your clusters is instead left entirely up to you.
-
-Therefore the basic, lowest investment interaction is essentially:
+If I rationalise what interaction I want between Jinny and K8s, it's essentially:
 
     jinny template * | kubectl <apply|delete> -f -
 
-You can do this with a couple of shell functions with the caveat that your templates cannot take inputs or your function must include standardised named input files. Given that Jinny templates can be executed without any input files at all this is still a viable option.
+So I add that functionality into a couple of shell functions:
 
 *jk* | *kubectl apply* \
 jk is the name I gave the function but you can use whatever you want. Add this to your shell's run command script at `${HOME}/.bashrc` or similar:
@@ -699,7 +696,7 @@ function jk(){
 
 ```
 
-The stdout-separator argument places YAML separators on each file that you pass through, meaning that you can do cool things like mash in various files and have them all apply at once. The caveats with this approach being:
+The stdout-separator argument places yml separators on each file that you pass through, meaning that you can do cool things like mash in various files and have them all apply at once. The caveats with this approach being:
 
 - There's no input files
 - Relies on tempfile and kubectl being installed
@@ -723,3 +720,20 @@ function jd(){
   rm -rf $tmp
 }
 ```
+
+### Other Considered Templating Tools
+
+*Go Templating* \
+The context loss on loops drives me mad and makes nested loops near unusable. Sure there's work arounds but a workaround you have to use every time is not something I want in my life.
+
+*Mustache* \
+Great until you need logic. I often hit this limitation.
+
+*Handlebars* \
+Great, although I do remember hitting some ugly limitations with it that I can't quite remember. Also it's js native and I find ops work to be procedural and therefore an async native runtime to be cumbersome.
+
+*Pug* \
+It's HTML specific and I need something that works with *everything*. I'm on the frontlines man, sometimes I'm in the tank, sometimes I'm on the missle turret, I need a single unified interface.
+
+*Jinja* \
+Extensible. Simple syntax. Written in my most used procedural language. Low to no dependencies. Room for advancement. Documented. Battle hardened. 😙🤌
