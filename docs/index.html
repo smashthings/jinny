@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="preload" as="image" href="{{ images.logo }}">
+  <meta charset="UTF-8">
+  <title>{{ metadata.title }}</title>
+  <meta name="description" content="{{ metadata.description }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name=”robots” content="index, follow">
+  {% if debug is defined and debug == true %}
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% end %}
+  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+  <link rel="manifest" href="/img/manifest.json">
+  <script type="application/ld+json">
+    {{ ( path.templatedir + "/partials/schema.json" ) | file_content }}
+  </script>
+
+  {{ ( path.templatedir + "/partials/ga.html" ) | nested_template }}
+  {{ ( path.templatedir + "/partials/opengraph.html" ) | nested_template }}
+
+  {% for f in list_files(path.templatedir + '/css') %}
+  <style>
+    {{ f | file_content | indent(4, first=True) }}
+  </style>
+  {% endfor %}
+
+  {% for f in list_files(path.templatedir + '/js') %}
+  <script>
+    {{ f | file_content | indent(4, first=True) }}
+  </script>
+  {% endfor %}
+</head>
+

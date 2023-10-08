@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="317" height="500" src="https://raw.githubusercontent.com/smashthings/jinny/pipeline/logo.png">
+  <img width="317" height="500" src="https://github.com/smashthings/jinny/blob/master/docs/img/logo.png?raw=true">
 </p>
 
 # jinny
@@ -312,7 +312,7 @@ $ cat colours.txt
 ```
 
 <p align="center">
-  <img width="317" height="500" src="https://github.com/smashthings/jinny/blob/master/other/colours-screenshot.png?raw=true">
+  <img width="317" height="500" src="https://github.com/smashthings/jinny/blob/master/docs/img/colours-screenshot.png?raw=true">
 </p>
 
 
