@@ -1,0 +1,31 @@
+{% if globals is defined %}
+<div class="px-6 py-12 lg:px-8">
+  <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
+    <a href="#globals">
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl hover:text-sky-500" id="globals">Globals</h1>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">Globals are standalone properties that can be called like global functions or global variables. Some of Jinny's global functions will require parameters, if you miss providing these required parameters your template will helpfully and violently crash.</p>
+    {% for f in globals.keys() %}
+    <a href="#globals-{{f}}">
+      <h2 class="mt-4 text-2xl font-bold tracking-tight text-gray-300 hover:text-sky-500" id="globals-{{f}}">{{f}}</h2>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ globals[f].description}}</p>
+    {% if globals[f].code is defined %}
+    <br>
+    <div class="my-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-md dark:ring-1 dark:ring-white/10">
+      <div class="dark:bg-white/2.5">
+        <pre class="overflow-x-auto p-4 text-xs text-white">
+<code class="language-bash">{{ globals[f].code | escape }}<span>
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+    {% endif%}
+    {% if globals[f].additional_content is defined %}
+{{ globals[f].additional_content }}
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}

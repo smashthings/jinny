@@ -1,0 +1,32 @@
+{% if filters is defined %}
+<div class="px-6 py-12 lg:px-8">
+  <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
+    <a href="#filters">
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl hover:text-sky-500" id="filters">Filters</h1>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">Filters take passed in content via jinja pipes so tend to be used for chaining together and manipulating text provided to them.</p>
+    {% for f in filters.keys() %}
+    <a href="#filters-{{f}}">
+      <h2 class="mt-4 text-2xl font-bold tracking-tight text-gray-300 hover:text-sky-500" id="filters-{{f}}">{{f}}</h2>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ filters[f].description}}</p>
+    {% if filters[f].code is defined %}
+    <br>
+    <div class="my-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-md dark:ring-1 dark:ring-white/10">
+      <div class="dark:bg-white/2.5">
+        <pre class="overflow-x-auto p-4 text-xs text-white">
+<code class="language-bash">{{ filters[f].code | escape }}<span>
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+    {% endif%}
+    {% if filters[f].additional_content is defined %}
+{{ filters[f].additional_content }}
+    {% endif %}
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}

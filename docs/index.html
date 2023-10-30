@@ -7,9 +7,13 @@
   <meta name="description" content="{{ metadata.description }}">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name=”robots” content="index, follow">
-  {% if debug is defined and debug == true %}
+  {% if debug is defined and debug == "true" %}
   <script src="https://cdn.tailwindcss.com"></script>
-  {% end %}
+  {% else %}
+  <style>
+  {{ ( path.templatedir + "/dist/tailwind.css" ) | file_content }}
+  </style>
+  {% endif %}
   <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
@@ -34,3 +38,21 @@
   {% endfor %}
 </head>
 
+<body class="bg-gray-900">
+  {{ ( path.templatedir + "/partials/nav.html" ) | nested_template }}
+  {{ ( path.templatedir + "/partials/title.html" ) | nested_template }}
+
+  <div class="px-6 py-12 lg:px-8">
+    <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
+      <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ intro.description }}</p>
+    </div>
+  </div>
+
+  {{ ( path.templatedir + "/partials/usage.html" ) | nested_template }}
+  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
+  {{ ( path.templatedir + "/partials/filters.html" ) | nested_template }}
+  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
+  {{ ( path.templatedir + "/partials/globals.html" ) | nested_template }}
+  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
+  {{ ( path.templatedir + "/partials/errata.html" ) | nested_template }}
+</body>

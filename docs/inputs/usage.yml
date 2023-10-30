@@ -1,0 +1,79 @@
+usage:
+  "Use Cases":
+    description: |
+      Use cases of individual functionality are provided throughout this documentation. You can find the source code for this site at <b>docs/*</b>.
+      
+      At a high level jinny has been used for:
+
+      - A lightweight templating tool for Kubernetes manifests
+      - Templating environment variable files for use with docker images
+      - Email & HTTP templating within AWS Lambda functions
+      - Local development templating for static front-ends
+
+  "CLI Usage Examples":
+    description: |
+      As a CLI tool there are a number of options and CLI arguments that can be provided to jinny. Some common examples are below: 
+    code: |
+      => Templating multiple templates with a single input file:
+      $ jinny -t template-1.txt template-2.txt -i inputs.yml
+
+      => Templating any number of templates with two input files where base-values.yml provides all the base values and any values in overrides.json acts as an override:
+      $ jinny -t template.yml -i base-values.yml overrides.json
+
+      => Use an environment value file for templating
+      $ jinny -t template.yml -i ENVIRONMENT_VARIABLES.env
+
+      => Add an explicit override via CLI argument -e
+      $ jinny -t template.yml -i base-values.yml -e 'image=smasherofallthings/flask-waitress:latest'
+
+      => Add even more overrides via environment variables, so your pipelines can completely replace any bad value:
+      $ JINNY_overridden_value="top-priority" jinny -t template.yml -i base-values.yml overrides.json
+
+      => Pump all your files to a single stdout stream with a separator so different files are clearly marked:
+      $ jinny -t template-1.yml template-2.yml -i inputs.json -s '---'
+
+      => Dump all your templated files into a directory for capture, comparison and deployment
+      $ jinny -t template-1.yml template-2.yml -i inputs.json -d /path/to/directory
+      $ kubectl diff -f /path/to/directory
+      $ kubectl apply --server-dry-run -f /path/to/directory
+
+      => Pipe jinny to kubectl directly
+      $ jinny -t template-1.yml -i inputs.json | kubectl apply -f -
+
+  "Module Usage Examples":
+    description: |
+      Jinny is primarily a CLI tool, and python packaging can get incredibly painful, however, for simple use cases Jinny still works as a module and has been used in production environments for things like email templating (ie, data from a contact POST request => values for HTML email template to send to internal teams)
+    code: |
+      # Import all helpers and standard elements of Jinny
+      import jinny.jinny as jinny
+
+      # And then use it as in this production example
+      tmpl = jinny.TemplateHandler(templateName="email", rawString=tmplData)
+      tmpl.Render({
+        'rows': parsedBody
+      })
+
+      print(tmpl.result)
+
+
+      # Values can be exactly defined as the above or you can use the helper functions to give you the same features 
+      mergedDict = jinny.CombineValues({
+        "first": True
+      }, {
+        "second": "please"
+      }, 'test_merging_dicts')
+
+      assert mergedDict["first"] == True
+      assert mergedDict["second"] == "please"
+
+      mergedDict["rows"] = []
+
+      jinny.SetNestedValue(mergedDict, ["rows", "0"], "firstItem")
+
+      tmpl = jinny.TemplateHandler(templateName="email-two", rawString=tmplData)
+      tmpl.Render(mergedDict)
+
+      print(tmpl.result)
+
+  Enhancements:
+    description: Jinny is opinionated. This means that it makes choices and provides functionality outside of the standard Jinja toolset. One opinion includes automatically trimming template white-space leaving outputs easier to read. Additionally, the below filters and global functions have been added to improve jinny's usefulness out in the wild.

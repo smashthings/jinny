@@ -1,0 +1,217 @@
+globals:
+  path:
+    code: |
+      $ cat template.txt
+      I'm working from {{ path.cwd }}
+      jinny is running from {{ path.jinny }}
+      This template is {{ path.template }} in the directory {{ path.templatedir }}
+      My home directory with all my cat pics and DRG screenshots is {{ path.home }}
+
+      Rock and Stone!
+
+      $ jinny -t template.txt
+      I'm working from /home/smashthings/jinny-tmp/
+      jinny is running from /home/smashthings/.local/bin/jinny
+      This template is /home/smashthings/jinny-tmp/template.txt in the directory /home/smashthings/jinny-tmp/
+      My home directory with all my cat pics and DRG screenshots is /home/smashthings/
+
+      Rock and Stone!
+    description: |
+      path is a global dict that is available on each template. It'll give you the variables for:
+
+      - cwd - the current working directory
+      - jinny - jinny's directory, ie the jinny module itself
+      - template - the full path of the template currently being templated
+      - templatedir - the directory of the template currently being templated
+      - home - the home directory
+
+      These are global values so you can access them whenever and easily combine them into paths that work locally or in unstable environments such as pipelines
+
+  time_now:
+    description: |
+      time_now will generate a UTC timestamp at the point that the function is called. It will provide a microsecond ISO timestamp but with arguments you can provide a strftime compatible string to get the exact output that you're after.
+
+      <a href="https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior">Python Docs</a>
+    code: |
+      $ cat template.txt
+      #### => Template Start: {{ time_now("%M:%S.%f") }}
+
+      The exact UTC time down to the microsecond is {{ time_now() }}
+      But if you just wanted to know what time it is for humans it's {{ time_now("%Y-%m-%dT%H:%M") }}
+      Or you could say {{ time_now("%A the %j day of %Y which is also the %d day of %B") }}
+
+      #### => Template Finish: {{ time_now("%M:%S.%f") }}
+
+      $ jinny -t template.txt
+      #### => Template Start: 28:42.871426
+
+      The exact UTC time down to the microsecond is 2022-12-31T08:28:42.871447
+      But if you just wanted to know what time it is for humans it's 2022-12-31T08:28
+      Or you could say Saturday the 365 day of 2022 which is also the 31 day of December
+
+      #### => Template Finish: 28:42.871465
+
+  prompt_envvar:
+    description: |
+      prompt_envvar will prompt you for environment variables that are missing as jinny reaches them in your template(s). Once you provide a value it will set that as an environment variable and continue on, meaning that all other calls for that environment variable will receive the same value.
+
+      This is useful for one off values that don't need to be committed to code or for values that you want to ask for at run time such as passwords.
+    code: |
+      $ cat template.txt
+      ---
+      I'm driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}
+      Oh, I can't wait to see those faces
+      I'm driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}, yeah
+      Well I'm moving down that line
+      And it's been so long
+      But I will be there
+      I sing this song
+      To pass the time away
+      Driving in my car
+      Driving {{ prompt_envvar('destination') }} for {{ prompt_envvar('event')}}
+
+      $ jinny -t template.txt
+      Please set variable 'destination':
+      home
+      Please set variable 'event':
+      Christmas
+      ---
+      I'm driving home for Christmas
+      Oh, I can't wait to see those faces
+      I'm driving home for Christmas, yeah
+      Well I'm moving down that line
+      And it's been so long
+      But I will be there
+      I sing this song
+      To pass the time away
+      Driving in my car
+      Driving home for Christmas
+
+      $ destination='to the bottlo' event='a big bag of cans' jinny -t template.txt
+      ---
+      I'm driving to the bottlo for a big bag of cans
+      Oh, I can't wait to see those faces
+      I'm driving to the bottlo for a big bag of cans, yeah
+      Well I'm moving down that line
+      And it's been so long
+      But I will be there
+      I sing this song
+      To pass the time away
+      Driving in my car
+      Driving to the bottlo for a big bag of cans
+
+  req_envvar:
+    description: |
+      Checks for a required environment variable without prompting. Can take a custom message format and parameters for the printed error message if the environment variable is missing. This follows the same message format as string.format:
+
+      <a href="https://docs.python.org/3/library/string.html#string.Formatter.format">Python Docs</a>
+    code: |
+      $ cat template.txt
+      ---
+      super_secret: {{ req_envvar(var='PASSWORD', message_format="Need the password under var {0} yo", message_format_params=['PASSWORD']) }}
+
+      $ jinny -t template.txt
+      *********************
+      <2023-08-31T19:59:35> - TemplateHandler.Render(): Failed to render template at 'template.txt' with an exception from Jinja, details:
+      Type:<class 'Exception'>
+      Value:jinny.global_extensions.req_envvar(): Need the password under var PASSWORD yo
+      Trace:
+      ...
+
+
+      $ PASSWORD=wizards jinny -t template.txt
+      ---
+      super_secret: wizards
+
+  get_envvar:
+    description: |
+      Gets an environment variable from the environment and provides a default value if not found. If a default value is not provided get_envvar will return an empty string. Returning an empty string allows for template logic to react to missing environment variables
+    code: |
+      $ cat template.txt
+      ---
+      missing_env_var: {{ get_envvar(var='BADGERS', default='NO BADGERS') }}
+      existing_env_var: {{ get_envvar('HOME') }}
+
+      {% if get_envvar('BADGERS') | length %}
+      We got {{ get_envvar('BADGERS') }} badgers from the environment variable BADGERS
+      {% else %}
+      The environment variable BADGERS didn't exist so we assume no badgers
+      {% endif %}
+
+      $ jinny -t template.txt
+      ---
+      missing_env_var: NO BADGERS
+      existing_env_var: /home/smasherofallthings
+
+      The environment variable BADGERS didn't exist so we assume no badgers
+
+
+      $ BADGERS=40 jinny -t template.txt
+      ---
+      missing_env_var: 40
+      existing_env_var: /home/smasherofallthings
+
+      We got 40 badgers from the environment variable BADGERS
+
+  list_files:
+    description: |
+      list_files will take a directory path and will either recursively or not provide a list of all the files in that path.
+
+      This is intended to be used with the `for` keyword for looping through files. Original use-case was for implementing files as keys in a Kubernetes ConfigMap.
+
+      Note that the below example also makes use of <i>path</i>, <i>file_content</i> and <i>basename</i>, all of which are jinny additions and not in jinja.
+    code: |
+      $ cat configmap.yml
+      ---
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: loadsofscripts
+      data:
+      {% for f in list_files(path.templatedir + '/scripts') %}
+        {{ f | basename }}: |
+      {{ f | file_content | indent(4, first=True) }}
+      {% endfor %}
+
+
+      $ cat scripts/script1.sh
+      #!/bin/bash
+      echo "This is script one"
+
+      $ cat scripts/script2.sh
+      #!/bin/bash
+      echo "This is script 2!"
+
+      $ jinny -t configmap.yml
+      ---
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: loadsofscripts
+      data:
+        script1.sh: |
+          #!/bin/bash
+          echo "This is script one"
+
+
+        script2.sh: |
+          #!/bin/bash
+          echo "This is script 2!"
+
+  gen_uuid4:
+    description: |
+      Generates a new version 4 UUID via the python uuid library. There's absolutely no memory on this so don't expect idempotency in your resulting templates, ie every time you run the template you'll get different UUIDs. 
+
+      This is <i>awesome</i> for generating a load of dummy data
+    code: |
+      $ cat template.txt
+      {% for f in range(5) %}
+      {{ gen_uuid4() }}
+      {% endfor %}
+
+      $ jinny -t template.txt
+      b251f634-a912-4868-bd03-e2ccc3ae7356
+      4e136ef8-b106-42c9-b98c-9d61a833c523
+      08f9a05a-01a3-4731-a591-3e07d9876c36
+      7cc40da8-de29-4e37-80b9-fa3ca60ac0f0
+      0e044ca0-36b8-4835-ac7c-c7fa5215fdcf

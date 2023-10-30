@@ -1,0 +1,209 @@
+filters:
+  file_content:
+    description: Fully imports the raw content of a file into the template where called.
+    code: |
+      $ cat template.html
+
+      <html>
+      <style>
+      {{ ( path.templatedir + "css.css" ) | file_content }}
+      </style>
+      </html>
+
+      $ cat css.css
+
+      html { font-weight: 900; }
+
+      $ jinny -t template.html
+      <html>
+      <style>
+      html { font-weight: 900; }
+      </style>
+      </html>
+
+  nested_template:
+    description: |
+      Imports and templates other templates with the same values as the master template has received. This may not be thread safe for non-GIL or other multi-threaded implementations of python as it relies on pointer updates to a global variable from the root template. For CPython which is the vast majority of implementations and run-time this is totally fine.
+
+      The benefit of this approach is dodging passing the value stack through the Jinja codebase which can be prone to breaking in Jinja updates and adds a substantial overhead to route and debug. This functionality is well outside of the Jinja's intended design. If you don't want to deviate too far from Jinja then don't use it.
+    code: |
+      $ cat template.html
+
+      <html>
+      <style>
+      {{ ( path.templatedir + "css.css" ) | nested_template }}
+      </style>
+      </html>
+
+      $ cat css.css
+
+      html { font-weight: {{ font_weight }}; }
+
+      $ jinny -t template.html -e font_weight=600
+      <html>
+      <style>
+      html { font-weight: 600; }
+      </style>
+      </html>
+
+  "print_stdout, print_stderr & tee":
+    description: |
+      These filters will print to stdout, stderr or tee to stdout and continue to content. They're used for debugging, warnings and other elements.
+
+      You are going to want to run this with `-d` or `-di` options so that resulting templates are written to files rather than dumped to standard out. Not doing that will mix the output of these filters into your template output. 
+
+      With that caveat in mind this allows for template annotations within the templating process telling you what's going on without having to analyse the output:
+    code: |
+      $ cat template.html
+
+      <html>
+      <style>
+        {{ ("Running a build of this template " + path.template + " at: ") | print_stdout }}
+        <h1> This page was generated at {{ time_now() | tee }}</h1>
+      </style>
+      </html>
+
+
+      $ jinny -t template.html --dump-to-dir "$(pwd)"
+      Running a build of this template /home/smashthings/jinny-tmp/template.html at: 
+      2023-01-23T19:42:56.581482
+
+      $ cat 0-template.html
+      <html>
+      <style>
+        
+        <h1> This page was generated at 2023-01-23T19:42:56.581482</h1>
+      </style>
+      </html>
+
+  "basename, dirname":
+    description: Straight python rips of os.path.basename and os.path.dirname
+    code: |
+      $ cat template.txt
+
+      home: {{ path.home }}
+      dirname: {{ path.home | dirname }}
+      basename: {{ (path.home + '.ssh') | basename }}
+
+      $ jinny -t template.txt
+      home: /home/smashthings/
+      dirname: /home/smashthings
+      basename: .ssh
+
+  "removesuffix, removeprefix":
+    description: These are rips of the str methods available in Python 3.9 onwards. However, you might be running a version earlier than 3.9, hence these functions are stand alone and can be used in any Python 3 version.
+    code: |
+      $ cat template.txt
+
+      removeprefix: {{ "mushroomfactory" | removeprefix("mushroom") }}
+      dontremoveprefix: {{ "mushroomfactory" | removeprefix("badger") }}
+
+      removesuffix: {{ "mushroomfactory" | removesuffix("ory") }}
+      dontremovesuffix: {{ "mushroomfactory" | removesuffix("badger") }}
+
+      $ jinny -t template.txt
+
+      removeprefix: factory
+      dontremoveprefix: mushroomfactory
+
+      removesuffix: mushroomfact
+      dontremovesuffix: mushroomfactory
+
+  censor:
+    description: |
+      Censors the provided string with the ability to set the censor characters, skip censoring the first and/or last <i>n</i> characters or always set the censored string to <i>x</i> characters long.
+    code: |
+      $ cat template.txt
+      ---
+      censored_password: {{ req_envvar('PASSWORD') | censor }}
+      censored_password_always_10_characters: {{ req_envvar('PASSWORD') | censor(fixed_length=10) }}
+      censored_password_with_birds: "{{ req_envvar('PASSWORD') | censor(vals=['🐦‍']) }}"
+      censored_password_except_first_2_characters: {{ req_envvar('PASSWORD') | censor(except_beginning=2) }}
+      censor_everything_except_first_and_last_characters: {{ req_envvar('PASSWORD') | censor(except_beginning=1,except_end=1) }}
+      passwords_are_always_five_frogs: "{{ req_envvar('PASSWORD') | censor(vals=['🐸'], fixed_length=5) }}"
+
+
+      $ PASSWORD=mushrooms jinny -t template.txt
+      ---
+      censored_password: *********
+      censored_password_always_10_characters: **********
+      censored_password_with_birds: "🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍🐦‍"
+      censored_password_except_first_2_characters: mu*******
+      censor_everything_except_first_and_last_characters: m*******s
+      passwords_are_always_five_frogs: "🐸🐸🐸🐸🐸"
+
+  decorate:
+    description: |
+      Through the magic of escape codes allows you to spew all sorts of horrendous colours out to terminals alongside bold, underline, blinking, strikethrough, etc.
+
+      Below are the current supported codings, with background colours prefixed with `bg-` and bright / lighter colours starting with `bright`.
+    code: |
+      $ cat colours.txt
+
+      {{ "This will look totally normal!" | decorate('normal') }}
+      {{ "This will be bold!" | decorate('bold') }}
+      {{ "This will be faint!" | decorate('faint') }}
+      {{ "This will be italic!" | decorate('italic') }}
+      {{ "This will be underline!" | decorate('underline') }}
+      {{ "This will be blink!" | decorate('blink') }}
+      {{ "This will be fastblink!" | decorate('fastblink') }}
+      {{ "This will be strikethrough!" | decorate('strikethrough') }}
+      {{ "This will be framed!" | decorate('framed') }}
+      {{ "This will be circled!" | decorate('circled') }}
+      {{ "This will be overlined!" | decorate('overlined') }}
+      {{ "This will be black!" | decorate('black') }}
+      {{ "This will be red!" | decorate('red') }}
+      {{ "This will be green!" | decorate('green') }}
+      {{ "This will be yellow!" | decorate('yellow') }}
+      {{ "This will be blue!" | decorate('blue') }}
+      {{ "This will be magenta!" | decorate('magenta') }}
+      {{ "This will be cyan!" | decorate('cyan') }}
+      {{ "This will be white!" | decorate('white') }}
+      {{ "This will be bg-black!" | decorate('bg-black') }}
+      {{ "This will be bg-red!" | decorate('bg-red') }}
+      {{ "This will be bg-green!" | decorate('bg-green') }}
+      {{ "This will be bg-yellow!" | decorate('bg-yellow') }}
+      {{ "This will be bg-blue!" | decorate('bg-blue') }}
+      {{ "This will be bg-magenta!" | decorate('bg-magenta') }}
+      {{ "This will be bg-cyan!" | decorate('bg-cyan') }}
+      {{ "This will be bg-white!" | decorate('bg-white') }}
+      {{ "This will be brightblack!" | decorate('brightblack') }}
+      {{ "This will be brightred!" | decorate('brightred') }}
+      {{ "This will be brightgreen!" | decorate('brightgreen') }}
+      {{ "This will be brightyellow!" | decorate('brightyellow') }}
+      {{ "This will be brightblue!" | decorate('brightblue') }}
+      {{ "This will be brightmagenta!" | decorate('brightmagenta') }}
+      {{ "This will be brightcyan!" | decorate('brightcyan') }}
+      {{ "This will be brightwhite!" | decorate('brightwhite') }}
+      {{ "This will be bg-brightblack!" | decorate('bg-brightblack') }}
+      {{ "This will be bg-brightred!" | decorate('bg-brightred') }}
+      {{ "This will be bg-brightgreen!" | decorate('bg-brightgreen') }}
+      {{ "This will be bg-brightyellow!" | decorate('bg-brightyellow') }}
+      {{ "This will be bg-brightblue!" | decorate('bg-brightblue') }}
+      {{ "This will be bg-brightmagenta!" | decorate('bg-brightmagenta') }}
+      {{ "This will be bg-brightcyan!" | decorate('bg-brightcyan') }}
+      {{ "This will be bg-brightwhite!" | decorate('bg-brightwhite') }}
+    additional_content: |
+      <p align="center" class="mt-10">
+        <img width="317" height="500" src="https://raw.githubusercontent.com/smashthings/jinny/master/other/colours-screenshot.png">
+      </p>
+
+# <p align="center">
+#   <img width="317" height="500" src="https://github.com/smashthings/jinny/blob/master/docs/img/colours-screenshot.png?raw=true">
+# </p>
+
+  "b64encode, b64decode":
+    description: Amazingly, the encode and decode functions found in Ansible are not in plain jinja. Jinny has them implemented though
+    code: |
+      $ cat template.yml
+      ---
+      username: "{{ req_envvar('SECRET_USERNAME')}}"
+      password: "{{ req_envvar('SECRET_PASSWORD')}}"
+      authorization_header = "Basic {{ (req_envvar('SECRET_USERNAME') + ':' + req_envvar('SECRET_PASSWORD')) | b64encode }}"
+
+
+      $ SECRET_USERNAME=potus SECRET_PASSWORD=00000000 jinny -t template.yml
+      ---
+      username: "potus"
+      password: "00000000"
+      authorization_header = "Basic cG90dXM6MDAwMDAwMDA="

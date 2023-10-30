@@ -5,3 +5,6 @@ dist
 
 draft.README.md
 *.bak
+
+**/node_modules
+**/.npm

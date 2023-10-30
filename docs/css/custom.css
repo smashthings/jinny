@@ -1,0 +1,27 @@
+i {
+  -webkit-text-decoration-color: #22c55e;
+  text-decoration-color: #22c55e;
+  -webkit-text-decoration-line: underline;
+  text-decoration-line: underline;
+  font-weight: 700;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+p > a {
+  -webkit-text-decoration-color: #0ea5e9;
+  text-decoration-color: #0ea5e9;
+  -webkit-text-decoration-line: underline;
+  text-decoration-line: underline;
+  font-weight: 700;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+p > a:hover {
+  color: #0ea5e9;
+}
+
+a:hover {
+  color: #0ea5e9;
+}

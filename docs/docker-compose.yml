@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+  dev:
+    image: smasherofallthings/python-fe:amd64-latest
+    restart: "no"
+    network_mode: host
+    environment:
+      HOME: /interactive
+      PYTHONUNBUFFERED: "true"
+    entrypoint:
+      - npm
+      - run
+      - dev:frontend
+    volumes:
+      - .:/interactive
+    working_dir: "/interactive"
+
+  prod:
+    image: smasherofallthings/python-fe:amd64-latest
+    restart: "no"
+    network_mode: host
+    environment:
+      HOME: /interactive
+      PYTHONUNBUFFERED: "true"
+    entrypoint:
+      - npm
+      - run
+      - compile:prod
+    volumes:
+      - .:/interactive
+    working_dir: "/interactive"

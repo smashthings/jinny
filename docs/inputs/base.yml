@@ -1,0 +1,19 @@
+metadata:
+  title: Jinny Documentation
+  description: Documentation for Jinny, the CLI Jinja templating tool
+
+images:
+  logo: /img/logo.png
+
+config:
+  base_domain: jinny.southall.solutions
+  ga_code: ndsiandsuida
+
+links:
+  github: https://github.com/smashthings/jinny
+
+intro:
+  description: |
+    Jinny is a templating tool for jinja templates. It can be used for a number of things but was created from a DevOps perspective to aid in configuration management for scaled deployments instead of using tools like Helm, Kustomize, jinja-cli, etc. These days jinny is still used for Ops work but is also used for live applications handling email templating, static HTML generation and more.
+
+    This very documentation site is built and templated with Jinny. Jinny compiles all the partial templates, the configuration and the CSS into a single HTML file, both during live development and for production artefacts.

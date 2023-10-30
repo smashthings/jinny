@@ -1,0 +1,107 @@
+errata:
+  "Input Files":
+    description: |
+      Jinny will read the file extension of provided input files to work out if they're JSON, YAML or .env files. If you don't have an extension on the filename then jinny will attempt parsing in YAML and then JSON. It won't try .env as it's a very easy to misinterpret .env files.
+
+      Environment files MUST end with `.env` to be parsed as environment files. Jinny has a very simple logic to parsing environment files as inputs into jinny
+
+      - Jinny will read the file line by line
+      - Each line will be split at the first `=`. Therefore your values can contain `=`. This is a dumb split and thus won't care if your keys are non-POSIX. See below for examples
+      - Jinny will make a fair effort to handle multi-line values. Read below for more details
+      - Jinny will skip commented lines - ie. starting with a `#`
+      - Jinny will ignore blank lines
+  "Multi-line Values":
+    description: |
+      Jinny makes a fair effort to interpret multi-line values. Ideally you *shouldn't be doing this* as multi-line values get interpreted differently across a whole host of shells and other programmes. You *should* be base64 encoding your values that have special characters - including new line characters - and setting the encoded result as the value. However, I have seen multi-line values used so often that Jinny will make a fair effort to handle them. There's no promises that this will do exactly what you want and you need to be wary of new lines added / interpreted / missed at the end of your value.
+  # Examples:
+  #   description:
+
+  "Packages used":
+    description: |
+      Check out src/jinny/requirements.txt
+
+      As of December 2022 only PyYAML and Jinja2 are used outside the standard library
+
+  FAQs:
+    description: |
+      <b>Will jinny ever integrate with Kubernetes directly?</b>
+      No. See below for an example of a workable approach.
+
+      <b>What about Windows?</b>
+      My Windows days are behind me and I'm not coming back to it. If you'll like to PR it in go for it, however I'm neither motivated nor tooled up to maintain support for Windows.
+
+      <b>Can I donate or support?</b>
+      Nah. I'm good. If jinny really helps and you want to right the balance then please donate to the Guide Dogs UK or Australia or Tassie. With some time, energy and some delicious dog treats they give people back their independence, it's the best ROI I know of.
+
+      <a href="https://www.guidedogs.org.uk">Guide Dogs UK</a>
+      <a href="https://guidedogs.com.au">Guide Dogs AU</a>
+      <a href="https://guidedogstas.com.au/supportus/donate/">Guide Dogs Tasmania</a>
+
+      <b>Can you offer support?</b>
+      jinny is simple enough that your problem isn't likely to be jinny itself. If it is then open up an issue here on Gitlab or on Github.
+
+  "Why?":
+    description: |
+      The 2020's of software usually include mashing together different/underlying/proxied systems that need to be able to scale, adapt and transform in unstable environments (no pets, black box providers, etc) and unstable direction. This means you're running applications and controlling services that lead to a mass of config that needs to change on a whim. Add to this the need to pass this through various CI/CD pipelines and there's a need for a templating application that is:
+
+      - Command line controlled
+      - Can take multiple JSON & YAML template inputs
+      - Can take multiple Jinja based templates
+      - Can choose to template out to stdout, to separate files, to one big file
+      - Allows for cascading overwriting of inputs
+      - Allows the utilising of a seasoned templating language with some room for adding functionality
+      - Stable - uses simple and reliable libraries and doesn't need constant maintenance. We don't want this failing our pipelines or botching deployments
+
+      For example, Jinny was originally conceived as a way to handle templating of Kubernetes manifests rather than using Helm or other Go templating tools. Helm is over-engineered for what I often need and usually comes with unwanted issues such as nuking production environments (your mileage may vary). Jinny doesn't attempt Kubernetes package management, whatever that is, and instead just sticks to templating such that you as the Ops engineer can choose how, when or what to apply.
+
+  Kubernetes:
+    description: |
+      With the move to Kubernetes the amount of templating and general boilerplate become quite heavy going. There's less coding of systems and more grabbing what's on the OSS shelf and slamming config into it until it does what you need it to do. I understand the reasoning for it, but a major side effect is that what there's less 'writing code' and more 'managing config'.
+
+      The dominant technology for managing Kubernetes configuration is Helm. Helm and Jinny both do templating. Helm will also attempt deployment management, but I've also found it used just for the templating.
+
+      A large motivator behind Jinny was the state of Helm. During my professional career I've witnessed Helm commit significant financial damage through its unreliability, poor logic and its flawed attempts to do too much. Helm templating is a significant downgrade to what Jinja can provide. Helm's deployment management is a source of woe. You can read more about this [here.](https://southall.solutions/articles/helm-an-overview/)
+
+      Additionally, templating related requirements have arisen for which there hasn't been suitable tooling. Email templating. Generating NGINX configurations based on the existence of relevant environment variables. Creating reports based on environment variables that can censor sensitive data as required. Jinny has grown to cover these additional use cases as well as handle Kubernetes.
+
+      Jinny doesn't interface directly with Kubernetes as it only handles the templating. How you deploy to your clusters is instead left entirely up to you.
+
+      Therefore the basic, lowest investment interaction is essentially:
+
+      <code>jinny template * | kubectl <apply|delete> -f -</code>
+
+      You can do this with a couple of shell functions with the caveat that your templates cannot take inputs or your function must include standardised named input files. Given that Jinny templates can be executed without any input files at all this is still a viable option.
+
+      jk is the name I gave the function but you can use whatever you want. Add the below to your shell's run command script at <code>${HOME}/.bashrc</code> or similar.
+
+      The stdout-separator argument in the below functions places YAML separators on each file that you pass through, meaning that you can do cool things like mash in various files and have them all apply at once. The caveats with this approach being:
+
+      - There's no input files
+      - Relies on tempfile and kubectl being installed
+      - Writes a file to disk or wherever volume tempfile is configured to write to
+      - It's compatible with my bash/zsh setup but you need to check your own
+
+      I'm cool with all of that so works well for me.
+
+    code: |
+      function jk(){
+        tmp=$(tempfile)
+        jinny --stdout-seperator='---' -t "${@}" > $tmp
+        if [[ $? == "0" ]]; then
+          kubectl apply -f $tmp
+        else
+          cat $tmp
+        fi
+        rm -rf $tmp
+      }
+
+      function jd(){
+        tmp=$(tempfile)
+        jinny --stdout-seperator='---' -t "${@}" > $tmp
+        if [[ $? == "0" ]]; then
+          kubectl delete -f $tmp
+        else
+          cat $tmp
+        fi
+        rm -rf $tmp
+      }
