@@ -185,12 +185,8 @@ filters:
       {{ "This will be bg-brightwhite!" | decorate('bg-brightwhite') }}
     additional_content: |
       <p align="center" class="mt-10">
-        <img width="317" height="500" src="https://raw.githubusercontent.com/smashthings/jinny/master/other/colours-screenshot.png">
+        <img width="317" height="500" src="https://raw.githubusercontent.com/smashthings/jinny/master/docs/img/colours-screenshot.png">
       </p>
-
-# <p align="center">
-#   <img width="317" height="500" src="https://github.com/smashthings/jinny/blob/master/docs/img/colours-screenshot.png?raw=true">
-# </p>
 
   "b64encode, b64decode":
     description: Amazingly, the encode and decode functions found in Ansible are not in plain jinja. Jinny has them implemented though
