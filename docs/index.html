@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="preload" as="image" href="{{ images.logo }}">
+  <link rel="preload" as="image" href="data:image/png;base64,{{ b64file(path.templatedir + images.logo) }}">
   <meta charset="UTF-8">
   <title>{{ metadata.title }}</title>
   <meta name="description" content="{{ metadata.description }}">
@@ -14,10 +14,9 @@
   {{ ( path.templatedir + "/dist/tailwind.css" ) | file_content }}
   </style>
   {% endif %}
-  <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
-  <link rel="manifest" href="/img/manifest.json">
+  <link rel="apple-touch-icon" sizes="180x180" href="data:image/x-icon;base64,{{ b64file(path.templatedir + '/img/apple-icon.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="data:image/x-icon;base64,{{ b64file(path.templatedir + '/img/favicon-32x32.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="data:image/x-icon;base64,{{ b64file(path.templatedir + '/img/favicon-16x16.png') }}">
   <script type="application/ld+json">
     {{ ( path.templatedir + "/partials/schema.json" ) | file_content }}
   </script>
