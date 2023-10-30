@@ -19,7 +19,7 @@ steps:
   - python3 -m pytest tests/tests.py
 
 - name: Docker Image
-  image: smasherofallthings/python-fe
+  image: smasherofallthings/docker
   commands:
   - docker build -t smasherofallthings/jinny:latest -t "smasherofallthings/jinny:$$(date '+%Y-%m-%d')-b$${DRONE_BUILD_NUMBER}" -t "smasherofallthings/jinny:$(cat src/jinny/version)" .
   - for tag in "smasherofallthings/jinny:$$(date '+%Y-%m-%d')-b$${DRONE_BUILD_NUMBER}" "smasherofallthings/jinny:$(cat src/jinny/version)" 'smasherofallthings/jinny:latest'; do docker push $tag; done

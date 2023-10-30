@@ -3,6 +3,7 @@
 import datetime
 import os
 import uuid
+import base64
 
 def time_now(fmt:str="%Y-%m-%dT%H:%M:%S.%f"):
   return datetime.datetime.now(datetime.timezone.utc).strftime(fmt)
@@ -47,3 +48,14 @@ def list_files(directory:str, recursive:bool=False, topdown:bool=True):
 
 def gen_uuid4():
   return uuid.uuid4()
+
+def b64file(path:str):
+  t = os.path.abspath(path)
+  if not os.path.exists(t):
+    raise Exception(f'jinny.global_extensions.b64file(): The provided path at "{t}" does not exist. Exiting!')
+  if os.path.isdir(t):
+    raise Exception(f'jinny.global_extensions.b64file(): The provided path at "{t}" is a directory, b64file only works with files. Exiting!')
+  with open(t, "br") as f:
+    d = f.read()
+  return base64.b64encode(d).decode()
+
