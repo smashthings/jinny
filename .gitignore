@@ -4,3 +4,8 @@ src/jinny.egg-info
 dist
 
 draft.README.md
+
+*.bak
+
+**/node_modules
+**/.npm

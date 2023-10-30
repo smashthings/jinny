@@ -43,3 +43,6 @@ censored_middle_only: '{{ "card_number" | censor(except_beginning=2, except_end=
 
 b64encode: "{{ 'potus:00000000' | b64encode }}"
 b64decode: "{{ 'cG90dXM6MDAwMDAwMDA=' | b64decode }}"
+
+b64file: "{{ b64file(path.templatedir + '/a-serious-test-asset.png') }}"
+
