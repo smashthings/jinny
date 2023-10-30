@@ -1,7 +1,7 @@
 {
   "scripts": {
     "compile:dev": "jinny -e debug=true -i inputs/* -t index.html -di dist/",
-    "compile:prod": "tailwindcss -o ./dist/tailwind.css -i input.css && jinny -i inputs/* -t index.html -di dist/",
+    "compile:prod": "npx tailwindcss -o ./dist/tailwind.css -i input.css && jinny -i inputs/* -t index.html -di dist/",
     "browsersync": "cd dist && npx browser-sync start --server -w",
     "watch:frontend": "nodemon --exec 'npm run compile:dev' --ext html,js,css,yml,svg,jsx --watch . --ignore dist/",
     "dev:frontend": "run-p watch:frontend browsersync"

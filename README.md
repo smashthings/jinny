@@ -41,7 +41,7 @@ $ jinny -t template-1.yml -i inputs.json | kubectl apply -f -
 
 ## Documentation
 
-Jinny has a lot of functionality, settings and more. You can review the documentation at - [https://jinny.southall.solutions]("https://jinny.southall.solutions"). \
+Jinny has a lot of functionality, settings and more. You can review the documentation at - [https://jinny.southall.solutions](https://jinny.southall.solutions).
 
 The documentation is a single HTML page built with Jinny. The source code for the site is at `docs/*` and contains:
 
