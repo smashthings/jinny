@@ -46,3 +46,6 @@ b64decode: "{{ 'cG90dXM6MDAwMDAwMDA=' | b64decode }}"
 
 b64file: "{{ b64file(path.templatedir + '/a-serious-test-asset.png') }}"
 
+getext_period: "{{ '/path/is/this.txt' | getext }}"
+getext_no_period: "{{ '/path/is/this.txt' | getext(period=False) }}"
+

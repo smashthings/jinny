@@ -203,3 +203,18 @@ filters:
       username: "potus"
       password: "00000000"
       authorization_header = "Basic cG90dXM6MDAwMDAwMDA="
+
+  "getext":
+    description: Fetches the extension for a provided path. This will take the full path, no need to filter it down with `basename` or similar. Will default to providing the leading full stop / period / '.'. This can be controlled with the `period` argument as below.
+    code: |
+      $ cat template.yml
+      ---
+      getext_period: "{{ '/path/is/this.txt' | getext }}"
+      getext_no_period: "{{ '/path/is/this.txt' | getext(period=False) }}"
+
+
+      $ jinny -t template.yml
+      ---
+      getext_period: ".txt"
+      getext_no_period: "txt"
+

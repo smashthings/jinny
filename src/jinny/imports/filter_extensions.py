@@ -117,3 +117,10 @@ def b64encode(s: str):
 
 def b64decode(s: str):
   return base64.b64decode(s.encode()).decode()
+
+def getext(s: str, period:bool=True):
+  root, ext = os.path.splitext(s)
+  if not ext:
+    raise Exception(f"jinny.filter_extenions.getext(): The provided path '{s}' did not result in an extension found via os.path.splitext(). Please check the documentation!")
+  return ext if period else ext.replace('.', '')
+
