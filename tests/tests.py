@@ -402,6 +402,12 @@ def test_getext():
   assert extensionsOutput["getext_period"] == ".txt"
   assert extensionsOutput["getext_no_period"] == "txt"
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_removeext():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["removeext_short"] == "this"
+  assert extensionsOutput["removeext_long"] == "/path/is/this"
+
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
 def test_raw_templating():

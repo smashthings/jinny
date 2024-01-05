@@ -124,3 +124,9 @@ def getext(s: str, period:bool=True):
     raise Exception(f"jinny.filter_extenions.getext(): The provided path '{s}' did not result in an extension found via os.path.splitext(). Please check the documentation!")
   return ext if period else ext.replace('.', '')
 
+def removeext(s: str):
+  root, ext = os.path.splitext(s)
+  if not root:
+    raise Exception(f"jinny.filter_extenions.removeext(): The provided path '{s}' did not result in a usable path via os.path.splitext(). Please check the documentation!")
+  return root
+

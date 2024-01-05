@@ -218,3 +218,18 @@ filters:
       getext_period: ".txt"
       getext_no_period: "txt"
 
+  "removeext":
+    description: Removes the extension from the provided path. This will take the full path and return the full path minus the extension. If you want the filename then you'll want to filter the full path to `basename` first then to `removeext`. Uses `os.path.splitext()` under the hood.
+    code: |
+      $ cat template.yml
+      ---
+      removeext_short: "{{ 'this.txt' | removeext }}"
+      removeext_long: "{{ '/path/is/this.txt' | removeext }}"
+
+
+      $ jinny -t template.yml
+      ---
+      removeext_short: "this"
+      removeext_long: "/path/is/this"
+
+

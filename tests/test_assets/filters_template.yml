@@ -49,3 +49,5 @@ b64file: "{{ b64file(path.templatedir + '/a-serious-test-asset.png') }}"
 getext_period: "{{ '/path/is/this.txt' | getext }}"
 getext_no_period: "{{ '/path/is/this.txt' | getext(period=False) }}"
 
+removeext_short: "{{ 'this.txt' | removeext }}"
+removeext_long: "{{ '/path/is/this.txt' | removeext }}"
