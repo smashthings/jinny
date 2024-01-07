@@ -1,0 +1,81 @@
+frontend:
+  'Development Flag':
+    description: Adding a conditional that looks for a flag to indicate development can be used for pulling in extended development code, metadata and more for local development. This is used on this very site for pulling in the TailwindCSS CDN when run in development mode and not requiring a full scan and compilation of TailwindCSS. When run this way all TailwindCSS classes are available preloaded in the development browser allowing for manual testing via edits without a full rebuild. Also included is setting a Javascript variable via script to indicate that debug mode is activated.
+    code: |
+      {% if dev_env is defined %}
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script>window.project.debug = true;</script>
+      {% else%}
+
+  'Component Code Snippets':
+    description: Likewise, you may wish to only load Google Analytics in development. Using a development flag works the same way here but with the added logic that if a Google Analytics code is provided in the inputs under `config.ga_code` then Google Analytics will be loaded. By simply providing your GA Code this generates the full implementation.
+    code: |
+      {% if dev_env is not defined and config.ga_code %}
+      <!-- Google Analytics via GTag -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.ga_code }}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '{{ config.ga_code }}');
+      </script>
+      {% endif %}
+
+  'Mass Importing JS and CSS':
+    description: Any file can be imported into a template via the `file_content` filter, however, when combined with the `list_files` function you can dynamically import CSS and JS files into your HTML directly. This format below leaves the HTML tags in the template, hence each imported .css and .js file can be pure CSS / JS.
+    code: |
+      <!-- Importing all the CSS files in ./css/ -->
+      {% for f in list_files(path.templatedir + '/css/') %}
+      <style>
+        {{ f | file_content }}
+      </style>
+      {% endfor %}
+
+      <!-- Importing all the JS files in ./js/ -->
+      {% for f in list_files(path.templatedir + '/js/') %}
+      <script>
+        {{ f | file_content }}
+      </script>
+      {% endfor %}
+
+  'Adding Fonts':
+    description: Fonts require import in a particular manner as the `@font-face` styling requires naming and determination of it's type. Using a few filters this can be generated automatically for either one file or for a list of files in a directory by reading the extension and file's basename of the font to determine the name and type of the font and by loading the base64 encoded version of the font.
+    code: |
+      <!-- Importing a single font from the ./fonts/NewFont.ttf as a TrueType Font with name NewFont -->
+      <style>
+      @font-face {
+        font-family: {{ path.templatedir + '/fonts/NewFont.ttf' | basename | removeext }};
+        src: url(data:font/{{ path.templatedir + '/fonts/NewFont.ttf' | getext(period=False) | lower }}; base64, {{ b64file(path.templatedir + '/fonts/NewFont.ttf') }});
+      }
+      </style>
+
+      <!-- Importing all the font files in the ./fonts/ directory with each filename becoming the font name -->
+      <style>
+      {% for f in list_files(path.templatedir + '/fonts/') %}
+      @font-face {
+        font-family: {{ f | basename | removeext }};
+        src: url(data:font/{{ path.templatedir + '/fonts/NewFont.ttf' | getext(period=False) | lower }}; base64, {{ b64file(f) }});
+      }
+      {% endfor %}
+      </style>
+
+
+  'Embedding Images':
+    description: Images can be embedded simply via their base64 content. This allows for images to be built directly into the page without needing separate calls for each individual image. Obviously, you'll lose lasy loading with this approach, but for sites that are light on images or for selected small images this is a great approach to simply loading in the image without also having to deploy each image file.
+    code: |
+      <!-- Loading in the favicon directly from file './logo.png' -->
+      <link as="image" href="data:image/png;base64,{{ b64file(path.templatedir + '/logo.png') }}">
+
+      <!-- Embedding a full image from picture.jpg -->
+      <img as="image" src="data:image/{{ path.templatedir + '/picture.jpg' | getext }};base64,{{ b64file(path.templatedir + '/picture.jpg') }}">
+
+  'SVG Components':
+    description: SVGs are common as icons and are essentially big bundles of HTML. Because they're just HTML we can import them as per any other file but also template them if they have variables such as common width or height values
+    code: |
+      <!-- Importing an SVG as is from './logo.svg' -->
+      {{ path.templatedir + '/logo.svg' | file_content }}
+
+      <!-- Importing an SVG at './logo.svg' that contains internal variables as a nested template -->
+      {{ path.templatedir + '/logo.svg' | nested_template }}
+

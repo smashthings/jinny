@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="preload" as="image" href="data:image/png;base64,{{ b64file(path.templatedir + images.logo) }}">
+  <link as="image" href="data:image/png;base64,{{ b64file(path.templatedir + images.logo) }}">
   <meta charset="UTF-8">
   <title>{{ metadata.title }}</title>
   <meta name="description" content="{{ metadata.description }}">
@@ -53,5 +53,8 @@
   <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
   {{ ( path.templatedir + "/partials/globals.html" ) | nested_template }}
   <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
+  {{ ( path.templatedir + "/partials/frontend.html" ) | nested_template }}
+  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
   {{ ( path.templatedir + "/partials/errata.html" ) | nested_template }}
 </body>
+

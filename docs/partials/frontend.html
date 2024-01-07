@@ -1,0 +1,31 @@
+{% if frontend is defined %}
+<div class="px-6 py-12 lg:px-8">
+  <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
+    <a href="#frontend">
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl hover:text-sky-500" id="frontend">Frontend</h1>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">One of the unexpected use cases for Jinny is in creating static sites, particularly when completely compiling all aspects to a single HTML file including JS, CSS, images and even fonts. Frontend frameworks can be heavy and often bring the full baggage of the Javascript ecosystem for what is a simple templating task.<br /><br />Given that most frontend directory structures break out images, fonts, code and other components into separate directories with clear import processes it's simple to put together various Jinny filters and global functions to build that data directly into a single page without needing multiple artifacts to be deployed nor a chunky framework to update.<br /><br />A great pattern is to have Jinny perform the basic templating in development allowing for development use of frameworks such as the TailwindCSS CDN without having a full rebuild and treeshake for each change.<br /><br />Another aspect is that by compiling all or selected content into a single page frontend, development work can proceed without having to load in a full backend. Jinny can compile everything the frontend needs such as styling, images and more into a single file loaded directly by the browser without needing a local server.<br /><br />All of this depends on your application. Most applications from the 2020s with complex frontends will be using JSX Components. Jinny won't replace that, but what it can do is add independent tools allowing for easy translation of frontend artefacts into your resulting HTML.<br /><br />Here's some examples:</p>
+    {% for f in frontend.keys() %}
+    <a href="#frontend-{{f}}">
+      <h2 class="mt-4 text-2xl font-bold tracking-tight text-gray-300 hover:text-sky-500" id="frontend-{{f}}">{{f}}</h2>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ frontend[f].description}}</p>
+    {% if frontend[f].code is defined %}
+    <br>
+    <div class="my-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-md dark:ring-1 dark:ring-white/10">
+      <div class="dark:bg-white/2.5">
+        <pre class="overflow-x-auto p-4 text-xs text-white">
+<code class="language-bash">{{ frontend[f].code | escape }}<span>
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+    {% endif%}
+    {% if frontend[f].additional_content is defined %}
+{{ frontend[f].additional_content }}
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
