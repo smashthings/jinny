@@ -68,7 +68,7 @@ frontend:
       <link as="image" href="data:image/png;base64,{{ b64file(path.templatedir + '/logo.png') }}">
 
       <!-- Embedding a full image from picture.jpg -->
-      <img as="image" src="data:image/{{ path.templatedir + '/picture.jpg' | getext }};base64,{{ b64file(path.templatedir + '/picture.jpg') }}">
+      <img src="data:image/{{ path.templatedir + '/picture.jpg' | getext }};base64,{{ b64file(path.templatedir + '/picture.jpg') }}">
 
   'SVG Components':
     description: SVGs are common as icons and are essentially big bundles of HTML. Because they're just HTML we can import them as per any other file but also template them if they have variables such as common width or height values
