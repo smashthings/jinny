@@ -232,4 +232,15 @@ filters:
       removeext_short: "this"
       removeext_long: "/path/is/this"
 
+  "newlinetr":
+    description: Replaces newlines with the provided string. Defaults to the HTML break tag `<br />` although other values can be provided. This is a quick function for 
+    code: |
+      $ cat template.html
+      ---
+      {{ "Please make this long sentence\nWith new line characters in it\nHTML friendly!\n\n" | newlinetr }}
+
+      $ jinny -t template.html
+      ---
+      Please make this long sentence<br />With new line characters in it<br />HTML friendly!<br /><br />
+
 

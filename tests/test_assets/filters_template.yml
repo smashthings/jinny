@@ -51,3 +51,7 @@ getext_no_period: "{{ '/path/is/this.txt' | getext(period=False) }}"
 
 removeext_short: "{{ 'this.txt' | removeext }}"
 removeext_long: "{{ '/path/is/this.txt' | removeext }}"
+
+newlinetr: '{{ "this should be a html break here and not a new line \n run on to a new sentence" | newlinetr }}'
+
+newlinetr_custom: '{{ "this should be a new\n  line run on sentence on one line" | newlinetr('custom') }}'

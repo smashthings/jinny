@@ -408,6 +408,12 @@ def test_removeext():
   assert extensionsOutput["removeext_short"] == "this"
   assert extensionsOutput["removeext_long"] == "/path/is/this"
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_newlinetr():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["newlinetr"] == "this should be a html break here and not a new line <br /> run on to a new sentence"
+  assert extensionsOutput["newlinetr_custom"] == "this should be a newcustom  line run on sentence on one line"
+
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
 def test_raw_templating():

@@ -130,3 +130,6 @@ def removeext(s: str):
     raise Exception(f"jinny.filter_extenions.removeext(): The provided path '{s}' did not result in a usable path via os.path.splitext(). Please check the documentation!")
   return root
 
+def newlinetr(s:str, v:str='<br />'):
+  return s.replace("\n", v)
+
