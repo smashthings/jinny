@@ -25,7 +25,7 @@ else:
   sys.path.pop(0)
 
 if not os.path.exists(f'{baseDir}/version'):
-  print(f"Jinny's version file doesn't exist, expected to find it at {basedir}/version. Not a good sign, might be best to reinstall jinny!")
+  print(f"Jinny's version file doesn't exist, expected to find it at {baseDir}/version. Not a good sign, might be best to reinstall jinny!")
   __version__ = "mystery.version"
 
 with open(f'{baseDir}/version') as f:
@@ -51,6 +51,7 @@ baseJ2Env = jinja2.Environment(trim_blocks=True, lstrip_blocks=True, keep_traili
 CombineLists = False
 args = None
 workingValsPointer = None
+HtmlErrorTemplate = None
 
 CurrentLoggingSettings = LoggingSettings()
 
@@ -311,6 +312,7 @@ def NestedTemplate(filename):
 def ArgParsing():
   global CurrentLoggingSettings
   global baseJ2Env
+  global args
   parser = argparse.ArgumentParser(description=f'''jinny v{__version__} | jinny.scripted.dog
 Jinny handles complex templating for jinja templates at a large scale and with multiple inputs and with a decent amount of customisation available.
 
@@ -372,6 +374,7 @@ You can modify jinja's environment settings via the rest of the command line opt
   parser.add_argument("-c", "--combine-lists", help="When cascading values across multiple files and encountering two lists with the same key, choose to combine the old list with the new list rather than have the new list replace the old", action="store_false")
   parser.add_argument("-ld", "--log-destination", help="Chose an alternate destination to log to, jinny defaults to stdout but you can provide a file to print output to instead", default="/dev/stdout", type=str)
   parser.add_argument("-nc", "--no-color", "--no-colour", help="Turn off coloured output", action="store_false")
+  parser.add_argument("-he", "--html-error", help="When encountering an error on the current template render a HTML error page with details on the error as well as log the error. This allows for templating errors to be captured by live browser reloads. Seriously, don't use this in prod", action="store_true")
 
   args = parser.parse_args()
 
@@ -471,7 +474,19 @@ class TemplateHandler():
         workingValsPointer = None
     except Exception as e:
       execDetails = sys.exc_info()
-      Log(f"TemplateHandler.Render(): Failed to render {'nested template' if self.nested  else 'template' } at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
+      if args.html_error:
+        Log(f"TemplateHandler.Render(): Failed to render {'nested template' if self.nested  else 'template' } at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", AlwaysLog=True)
+        Log(f'TemplateHandler.Render() Setting template to error page...', AlwaysLog=True)
+        HtmlErrorTemplate.Render({
+          'nested': self.nested,
+          'template_path': self.path,
+          'error_type': 'jinja2.exceptions.' + execDetails[0].__name__,
+          'error_value': str(execDetails[1]),
+          'lines': traceback.format_exc().splitlines()
+        })
+        self.result = HtmlErrorTemplate.Result()
+      else:
+        Log(f"TemplateHandler.Render(): Failed to render {'nested template' if self.nested  else 'template' } at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
   def Result(self):
     return self.result if self.result else None
@@ -499,6 +514,11 @@ def Main():
   LoadCustomFilters()
   overallValues = {}
   stdoutDump = []
+
+  if args.html_error:
+    global HtmlErrorTemplate
+    HtmlErrorTemplate = TemplateHandler(path=f'{baseDir}/error.html', addToGlobal=False)
+
   ##########################################
   # Template Handling
   for tmpl in args.templates:

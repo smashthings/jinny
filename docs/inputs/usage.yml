@@ -77,3 +77,16 @@ usage:
 
   Enhancements:
     description: Jinny is opinionated. This means that it makes choices and provides functionality outside of the standard Jinja toolset. One opinion includes automatically trimming template white-space leaving outputs easier to read. Additionally, the below filters and global functions have been added to improve jinny's usefulness out in the wild.
+
+  'HTML Error Pages':
+    description: |
+      Jinny works beautifully as a templating tool for static HTML. This documentation page is built solely in Jinny. Applications across the globe use Jinny for simple HTML templating providing a framework around dynamic applications or for mass templating of common pages.
+
+      Working with static HTML can be tedious however, with frontend tooling such as browsersync and nodemon it's possible to have template changes automatically compile via Jinny and have your local browser refresh automatically with the updated output. When something goes wrong with your templating it may not be obvious that a templating error has occured, therefore Jinny has the `--html-error` or -he option which will generate a HTML error page in place of an errored template.
+
+      For example, the below error page is produced when the template at `/home/smashthings/nonsense.html` references an undefined variable `somevariable`.
+  
+    additional_content: |
+      <p align="center" class="mt-10">
+        <img width="317" height="500" src="https://raw.githubusercontent.com/smashthings/jinny/master/docs/img/example-error-page.png">
+      </p>
