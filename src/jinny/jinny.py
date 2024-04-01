@@ -52,6 +52,7 @@ CombineLists = False
 args = None
 workingValsPointer = None
 HtmlErrorTemplate = None
+HtmlErrorTemplateExitNumber = 0
 
 CurrentLoggingSettings = LoggingSettings()
 
@@ -485,6 +486,8 @@ class TemplateHandler():
           'lines': traceback.format_exc().splitlines()
         })
         self.result = HtmlErrorTemplate.Result()
+        global HtmlErrorTemplateExitNumber
+        HtmlErrorTemplateExitNumber += 1
       else:
         Log(f"TemplateHandler.Render(): Failed to render {'nested template' if self.nested  else 'template' } at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", quitWithStatus=1)
 
@@ -516,8 +519,12 @@ def Main():
   stdoutDump = []
 
   if args.html_error:
-    global HtmlErrorTemplate
-    HtmlErrorTemplate = TemplateHandler(path=f'{baseDir}/error.html', addToGlobal=False)
+    if not os.path.exists(f'{baseDir}/error.html'):
+      global HtmlErrorTemplate
+      HtmlErrorTemplate = TemplateHandler(path=f'{baseDir}/error.html', addToGlobal=False)
+    else:
+      Log(f'Main(): Did not find error HTML template at {baseDir}/error.html for option --html-error! This option will be skipped and errors crashed as usual')
+      args.html_error = False
 
   ##########################################
   # Template Handling
@@ -603,6 +610,12 @@ def Main():
 
   if not args.dump_to_dir and not args.dump_to_dir_no_index:
     print(f'\n{args.stdout_seperator}\n'.join(stdoutDump))
+
+  if args.html_error:
+    if HtmlErrorTemplateExitNumber > 0:
+      Log(f"Main(): Templated {HtmlErrorTemplateExitNumber} failed templates!", quitWithStatus=1)
+    else:
+      Log(f"Main(): All templates completed without errors!")
 
 if __name__ == "__main__":
   Main()

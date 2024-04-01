@@ -30,7 +30,7 @@ setuptools.setup(
         "Operating System :: POSIX :: Other",
     ],
     package_dir={"": "src"},
-    package_data={"":["version"]},
+    package_data={"":["version", "error.html"]},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
     keywords="jinja,template,jinja2,kubernetes,cli",
