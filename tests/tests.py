@@ -313,7 +313,7 @@ def test_extensions_prep_output():
   print(status)
   assert status == 0
 
-  results = yaml.load(stdout, Loader=yaml.FullLoader)
+  results = yaml.load(stdout, Loader=yaml.SafeLoader)
   extensionsOutput = results
 
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
@@ -413,6 +413,13 @@ def test_newlinetr():
   print(json.dumps(extensionsOutput, indent=2))
   assert extensionsOutput["newlinetr"] == "this should be a html break here and not a new line <br /> run on to a new sentence"
   assert extensionsOutput["newlinetr_custom"] == "this should be a newcustom  line run on sentence on one line"
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_currency():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["currency_usd_str"] == "$73,845,400.32"
+  assert extensionsOutput["currency_usd_float"] == "$73,845,400.32"
+  assert extensionsOutput["currency_gbp"].encode().decode('utf-8') == "£73,845,400.32"
 
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")

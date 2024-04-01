@@ -133,3 +133,7 @@ def removeext(s: str):
 def newlinetr(s:str, v:str='<br />'):
   return s.replace("\n", v)
 
+def currency(v, symbol:str='$'):
+  f = float(v)
+  return symbol + "{:,.2f}".format(f)
+

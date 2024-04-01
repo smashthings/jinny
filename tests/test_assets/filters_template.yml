@@ -55,3 +55,7 @@ removeext_long: "{{ '/path/is/this.txt' | removeext }}"
 newlinetr: '{{ "this should be a html break here and not a new line \n run on to a new sentence" | newlinetr }}'
 
 newlinetr_custom: '{{ "this should be a new\n  line run on sentence on one line" | newlinetr('custom') }}'
+
+currency_usd_str: {{ '73845400.32' | currency }}
+currency_usd_float: {{ 73845400.32 | currency }}
+currency_gbp: {{ '73845400.32' | currency(symbol="£") }}
