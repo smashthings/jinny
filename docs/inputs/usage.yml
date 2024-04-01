@@ -10,6 +10,90 @@ usage:
       - Email & HTTP templating within AWS Lambda functions
       - Local development templating for static front-ends
 
+  "Arguments":
+    description: "Jinny takes the following CLI arguments:"
+    code: |
+      usage: jinny [-h] [-v] [-vvv] [-i [INPUTS ...]] [-e [EXPLICIT ...]] -t [TEMPLATES ...] [-ie] [-ds DICT_SEPARATOR] [--version] [--j-block-start J_BLOCK_START] [--j-block-end J_BLOCK_END]
+                  [--j-variable-start J_VARIABLE_START] [--j-variable-end J_VARIABLE_END] [--j-comment-start J_COMMENT_START] [--j-comment-end J_COMMENT_END] [--j-trim-blocks] [--j-lstrip-blocks]
+                  [--j-newline-sequence J_NEWLINE_SEQUENCE] [--j-keep-trailing-newline] [-d DUMP_TO_DIR] [-di DUMP_TO_DIR_NO_INDEX] [-s STDOUT_SEPERATOR] [-c] [-ld LOG_DESTINATION] [-nc] [-he]
+
+      jinny v1.10.0 | jinny.scripted.dog
+      Jinny handles complex templating for jinja templates at a large scale and with multiple inputs and with a decent amount of customisation available.
+
+      Commonly you'll want to utilse very straight forward features, such as:
+
+      => Templating multiple templates with a single input file:
+      $ jinny -t template-1.txt template-2.txt -i inputs.yml
+
+      => Templating any number of templates with two input files where base-values.yml provides all the base values and any values in overrides.json acts as an override:
+      $ jinny -t template.yml -i base-values.yml overrides.json
+
+      => Add even more overrides via environment variables, so your pipelines can completely replace any bad value:
+      $ JINNY_overridden_value="top-priority" jinny -t template.yml -i base-values.yml overrides.json
+
+      => Or via CLI:
+      $ jinny -t template.yml -i base-values.yml -e overridden_value="top-priority" overrides.json
+
+      => Pump all your files to a single stdout stream with a separator so different files are clearly marked:
+      $ jinny -t template-1.yml template-2.yml -i inputs.json -s='---'
+
+      => Dump all your templated files into a directory for capture
+      $ jinny -t template-1.yml template-2.yml -i inputes.json -d /path/to/directory
+      $ kubectl diff -f /path/to/directory
+      $ kubectl apply --server-dry-run -f /path/to/directory
+
+      => Pipe jinny to kubectl for appropriate templating without having to result to Helm
+      $ jinny -t template-1.yml -i inputs.json | kubectl apply -f -
+
+      You can modify jinja's environment settings via the rest of the command line options. Please note that jinny is opinionated and automatically strips line space from templates. You can, of course, turn this off!
+
+      options:
+        -h, --help            show this help message and exit
+        -v, --verbose         Set output to verbose
+        -vvv, --super-verbose
+                              Set output to super verbose where this script will print basically everything, INCLUDING POTENTIALLY SENSITIVE THINGS!
+        -i [INPUTS ...], --inputs [INPUTS ...]
+                              Add one or more file locations that include input values to the templating
+        -e [EXPLICIT ...], --explicit [EXPLICIT ...]
+                              Explicitly define a variable that trumps all other variables using a variable=value format. Adding variables like this trumps every other setting for that variable
+        -t [TEMPLATES ...], --templates [TEMPLATES ...]
+                              Add one or more file locations that contain the templates themselves
+        -ie, --ignore-env-vars
+                              Tell jinny to ignore any environment variables that begin with JINNY_, defaults to not ignoring these environment variables and setting them at the highest priority
+        -ds DICT_SEPARATOR, --dict-separator DICT_SEPARATOR
+                              When providing targeting on the CLI or via environment variables, choose a particular separating character for targeting nested elements, defaults to '.'
+        --version             show program's version number and exit
+        --j-block-start J_BLOCK_START
+                              Change the characters that indicate the start of a block, default '{%'
+        --j-block-end J_BLOCK_END
+                              Change the characters that indicate the end of a block, default '%}'
+        --j-variable-start J_VARIABLE_START
+                              Change the characters that indicate the start of a variable, default '{{'
+        --j-variable-end J_VARIABLE_END
+                              Change the characters that indicate the end of a variable, default '}}'
+        --j-comment-start J_COMMENT_START
+                              Change the characters that indicate the start of a comment inside of a template, default '{#'
+        --j-comment-end J_COMMENT_END
+                              Change the characters that indicate the end of a comment within a template, default '#}'
+        --j-trim-blocks       Set blocks to trim the newline after a block, this defaults to TRUE in jinny
+        --j-lstrip-blocks     Set blocks to trim the whitespace before a block, this defaults to TRUE in jinny
+        --j-newline-sequence J_NEWLINE_SEQUENCE
+                              This details the newline in use, defaults to \n
+        --j-keep-trailing-newline
+                              Choose whether to trim the newline at the end of a file or not, defaults to TRUE in jinny
+        -d DUMP_TO_DIR, --dump-to-dir DUMP_TO_DIR
+                              Dump completed templates to a target directory
+        -di DUMP_TO_DIR_NO_INDEX, --dump-to-dir-no-index DUMP_TO_DIR_NO_INDEX
+                              Dump completed templates to a target directory without index separation, meaning that templates with the same name can overwrite prior templates
+        -s STDOUT_SEPERATOR, --stdout-seperator STDOUT_SEPERATOR
+                              Place a seperator on it's own individual new line between successfully templated template when printing to stdout, eg '---' for yaml
+        -c, --combine-lists   When cascading values across multiple files and encountering two lists with the same key, choose to combine the old list with the new list rather than have the new list replace the old
+        -ld LOG_DESTINATION, --log-destination LOG_DESTINATION
+                              Chose an alternate destination to log to, jinny defaults to stdout but you can provide a file to print output to instead
+        -nc, --no-color, --no-colour
+                              Turn off coloured output
+        -he, --html-error     When encountering an error on the current template render a HTML error page with details on the error as well as log the error. This allows for templating errors to be captured by live browser reloads. Seriously, don't use this in prod
+
   "CLI Usage Examples":
     description: |
       As a CLI tool there are a number of options and CLI arguments that can be provided to jinny. Some common examples are below: 
