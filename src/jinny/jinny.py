@@ -356,6 +356,15 @@ You can modify jinja's environment settings via the rest of the command line opt
   parser.add_argument("-ds", "--dict-separator", help="When providing targeting on the CLI or via environment variables, choose a particular separating character for targeting nested elements, defaults to '.'", default=".", type=str)
   parser.add_argument('--version', action='version', version=__version__)
 
+  # Other Arguments
+  parser.add_argument("-d", "--dump-to-dir", help="Dump completed templates to a target directory", type=str)
+  parser.add_argument("-di", "--dump-to-dir-no-index", help="Dump completed templates to a target directory without index separation, meaning that templates with the same name can overwrite prior templates", type=str)
+  parser.add_argument("-s", "--stdout-seperator", help="Place a seperator on it's own individual new line between successfully templated template when printing to stdout, eg '---' for yaml", type=str, default='')
+  parser.add_argument("-c", "--combine-lists", help="When cascading values across multiple files and encountering two lists with the same key, choose to combine the old list with the new list rather than have the new list replace the old", action="store_false")
+  parser.add_argument("-ld", "--log-destination", help="Chose an alternate destination to log to, jinny defaults to stdout but you can provide a file to print output to instead", default="/dev/stdout", type=str)
+  parser.add_argument("-nc", "--no-color", "--no-colour", help="Turn off coloured output", action="store_false")
+  parser.add_argument("-he", "--html-error", help="When encountering an error on the current template render a HTML error page with details on the error as well as log the error. This allows for templating errors to be captured by live browser reloads. Seriously, don't use this in prod", action="store_true")
+
   # Jinja Specific Arguments
   parser.add_argument("--j-block-start", help="Change the characters that indicate the start of a block, default '{%%'", type=str, default="{%")
   parser.add_argument("--j-block-end", help="Change the characters that indicate the end of a block, default '%%}'", type=str, default="%}")
@@ -367,15 +376,6 @@ You can modify jinja's environment settings via the rest of the command line opt
   parser.add_argument("--j-lstrip-blocks", help="Set blocks to trim the whitespace before a block, this defaults to TRUE in jinny", action="store_false")
   parser.add_argument("--j-newline-sequence", help="This details the newline in use, defaults to \\n", type=str, default="\n")
   parser.add_argument("--j-keep-trailing-newline", help="Choose whether to trim the newline at the end of a file or not, defaults to TRUE in jinny", action="store_false")
-
-  # Other Arguments
-  parser.add_argument("-d", "--dump-to-dir", help="Dump completed templates to a target directory", type=str)
-  parser.add_argument("-di", "--dump-to-dir-no-index", help="Dump completed templates to a target directory without index separation, meaning that templates with the same name can overwrite prior templates", type=str)
-  parser.add_argument("-s", "--stdout-seperator", help="Place a seperator on it's own individual new line between successfully templated template when printing to stdout, eg '---' for yaml", type=str, default='')
-  parser.add_argument("-c", "--combine-lists", help="When cascading values across multiple files and encountering two lists with the same key, choose to combine the old list with the new list rather than have the new list replace the old", action="store_false")
-  parser.add_argument("-ld", "--log-destination", help="Chose an alternate destination to log to, jinny defaults to stdout but you can provide a file to print output to instead", default="/dev/stdout", type=str)
-  parser.add_argument("-nc", "--no-color", "--no-colour", help="Turn off coloured output", action="store_false")
-  parser.add_argument("-he", "--html-error", help="When encountering an error on the current template render a HTML error page with details on the error as well as log the error. This allows for templating errors to be captured by live browser reloads. Seriously, don't use this in prod", action="store_true")
 
   args = parser.parse_args()
 
@@ -401,7 +401,7 @@ You can modify jinja's environment settings via the rest of the command line opt
 
   if type(args.dump_to_dir) == str or type(args.dump_to_dir_no_index) == str:
     tarDump = "dump_to_dir" if type(args.dump_to_dir) == str else "dump_to_dir_no_index"
-    args.__setattr__(tarDump, getattr(args, tarDump).strip('/'))
+    args.__setattr__(tarDump, getattr(args, tarDump).rstrip('/'))
     if not os.path.isdir(getattr(args, tarDump)):
       Log(f"ArgParsing(): The parent directory for dumping completed templates to '{getattr(args, tarDump)}' does not exist, please check your arguments!", quitWithStatus=1)
 
