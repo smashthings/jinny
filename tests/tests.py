@@ -421,6 +421,14 @@ def test_currency():
   assert extensionsOutput["currency_usd_float"] == "$73,845,400.32"
   assert extensionsOutput["currency_gbp"].encode().decode('utf-8') == "£73,845,400.32"
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_is_file():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["is_file_check"] == "file found!"
+  assert extensionsOutput["is_file_check_failed"] == "file NOT found!"
+  assert extensionsOutput["is_dir_check"] == "dir found!"
+  assert extensionsOutput["is_dir_check_failed"] == "dir NOT found!"
+
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
 def test_raw_templating():

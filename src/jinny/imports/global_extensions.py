@@ -59,3 +59,9 @@ def b64file(path:str):
     d = f.read()
   return base64.b64encode(d).decode()
 
+def is_file(path:str):
+  return os.path.isfile(path)
+
+def is_dir(path:str):
+  return os.path.isdir(path)
+

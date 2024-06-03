@@ -314,6 +314,7 @@ def ArgParsing():
   global CurrentLoggingSettings
   global baseJ2Env
   global args
+  global CombineLists
   parser = argparse.ArgumentParser(description=f'''jinny v{__version__} | jinny.scripted.dog
 Jinny handles complex templating for jinja templates at a large scale and with multiple inputs and with a decent amount of customisation available.
 

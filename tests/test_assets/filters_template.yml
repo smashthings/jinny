@@ -59,3 +59,12 @@ newlinetr_custom: '{{ "this should be a new\n  line run on sentence on one line"
 currency_usd_str: {{ '73845400.32' | currency }}
 currency_usd_float: {{ 73845400.32 | currency }}
 currency_gbp: {{ '73845400.32' | currency(symbol="£") }}
+
+is_file_check: {% if is_file(path.templatedir + '/filters_template.yml') %}file found!{% else %}file just was not found{% endif %}
+
+is_file_check_failed: {% if not is_file(path.templatedir + '/does-not-exist.yml') %}file NOT found!{% else %}did not detect that a file was not found when it does not exist{% endif %}
+
+is_dir_check: {% if is_dir(path.templatedir) %}dir found!{% else %}dir just was not found{% endif %}
+
+is_dir_check_failed: {% if not is_dir(path.templatedir + 'non-existent-directory') %}dir NOT found!{% else %}did not detect a directory that does and should exist{% endif %}
+
