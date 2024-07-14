@@ -12,7 +12,6 @@ import pytest
 import datetime
 
 import jinny
-import inspect
 
 jinny.VerboseSetting = 2
 jinny.LoadCustomFilters()
@@ -302,6 +301,7 @@ def test_extensions_prep_output():
   status, stdout, stderr = RunCmd([
     "python3",
     f'{jinnyDir}/jinny.py',
+    "--unsafe",
     "-i",
     valuesFile,
     "-t",
@@ -428,6 +428,11 @@ def test_is_file():
   assert extensionsOutput["is_file_check_failed"] == "file NOT found!"
   assert extensionsOutput["is_dir_check"] == "dir found!"
   assert extensionsOutput["is_dir_check_failed"] == "dir NOT found!"
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_unsafe_cmd():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["unsafe_cmd"] == "big fish"
 
 # As we're reading from stdout
 @pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")

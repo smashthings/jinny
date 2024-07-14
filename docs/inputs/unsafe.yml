@@ -1,0 +1,36 @@
+unsafe:
+  cmd:
+    description: |
+      cmd takes either a single string or a list to pass through to subprocess.run. This is done as a way to dynamically pull in content without Jinny needing to include every conceivable piece of code in existence. Original use case was to print out the current git hash for repo documentation which is demonstrated below.
+
+      It's in unsafe for really obvious reasons. Read the documentation for the subprocess module to get an idea of how you can get utterly wrecked by calling random commands such as the permissions that are granted, disk access, network access, etc.
+      
+      Only allow use of this function in your templates if you trust the templates.
+
+      In addition to a string or list making up a command cmd also allows for flexibility in the output so you can control whether the command is loaded into a shell environment, just getting stdout, stderr or the exit status and whether or not you want the command to crash out if the command fails. Function params are:
+      - shell:bool=True -> chose to run the command in a shell environment, check out the subprocess module for more details
+      - quitOnFailure:bool=False -> raises an exception if the command fails
+      - returnStatusCode:bool=False -> whether to output the resulting status code
+      - returnStdOut:bool=True -> whether to output stdout
+      - returnStdErr:bool=True -> whether to output stderr
+      - outputJoin:str="\n" -> for each of statuscode, stdout and stderr what should be the separator when optionally printing them in that order
+      - raw:bool=False -> Raw forces raw output as per the below notes
+
+      An example showing the full output potential is below. Also note that:
+
+      The raw argument overrides some of the formatting safety that is included by default, namely:
+
+      - If stderr is empty then stderr will not be printed at all. As shown in the example below where returnStdErr is requested with a | separator but only the status code and stdout are included. This is done to avoid introducing impossible to debug spacing issues
+      - StdOut and StdErr from the command are .strip() of white space characters at the start and the end of each. Once again this is done to avoid debugging whitespace from commands. Jinny is a templating tool so whitespace is best managed in Jinny and not by commands
+
+    code: |
+      $ cat template.txt
+      The git hash of this repo is {{ cmd('git rev-parse HEAD') }}
+      A full raw output including newlines from the command and stderr even if it's empty is {{ cmd('git rev-parse HEAD', returnStatusCode=True, returnStdOut=True, returnStdErr=True, outputJoin='|', raw=True) }}
+      A full output without whitespace nonsense would be {{ cmd('git rev-parse HEAD', returnStatusCode=True, returnStdOut=True, returnStdErr=True, outputJoin='|') }}
+
+      $ jinny -t template.txt --unsafe
+      The git hash of this repo is 76bc7a3dad0616f8ee9f2d8d76a007454d49c531
+      A full raw output including newlines from the command and stderr even if it's empty is 0|76bc7a3dad0616f8ee9f2d8d76a007454d49c531
+      |
+      A full output without whitespace nonsense would be 0|76bc7a3dad0616f8ee9f2d8d76a007454d49c531

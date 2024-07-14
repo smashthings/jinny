@@ -14,6 +14,8 @@ import traceback
 import pathlib
 import inspect
 
+from imports import jinny_unsafe
+
 baseDir = os.path.dirname(os.path.abspath(__file__))
 if __name__ == '__main__':
   from imports import filter_extensions
@@ -250,6 +252,10 @@ def LoadCustomFilters():
     baseJ2Env.filters.update({f[0]: f[1]})
   for f in inspect.getmembers(global_extensions, inspect.isfunction):
     baseJ2Env.globals.update({f[0]: f[1]})
+  for f in jinny_unsafe.UnsafeFiltersMap.keys():
+    baseJ2Env.filters.update({f: jinny_unsafe.UnsafeFiltersMap[f]})
+  for f in jinny_unsafe.UnsafeGlobalMap.keys():
+    baseJ2Env.globals.update({f: jinny_unsafe.UnsafeGlobalMap[f]})
   baseJ2Env.filters.update({
     'nested_template': NestedTemplate
   })
@@ -365,6 +371,7 @@ You can modify jinja's environment settings via the rest of the command line opt
   parser.add_argument("-ld", "--log-destination", help="Chose an alternate destination to log to, jinny defaults to stdout but you can provide a file to print output to instead", default="/dev/stdout", type=str)
   parser.add_argument("-nc", "--no-color", "--no-colour", help="Turn off coloured output", action="store_false")
   parser.add_argument("-he", "--html-error", help="When encountering an error on the current template render a HTML error page with details on the error as well as log the error. This allows for templating errors to be captured by live browser reloads. Seriously, don't use this in prod", action="store_true")
+  parser.add_argument("-u", "--unsafe", dest='unsafe', help="Load unsafe filters and extensions, check the documentation", action="store_true")
 
   # Jinja Specific Arguments
   parser.add_argument("--j-block-start", help="Change the characters that indicate the start of a block, default '{%%'", type=str, default="{%")
@@ -415,6 +422,10 @@ You can modify jinja's environment settings via the rest of the command line opt
   if args.super_verbose:
     vs = 2
   CurrentLoggingSettings = LoggingSettings(location = args.log_destination, colour = args.no_color, verbosity = vs)
+
+  import imports.jinny_unsafe as jinny_unsafe
+  if args.unsafe:
+    jinny_unsafe.Activate()
 
   return args
 

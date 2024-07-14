@@ -1,0 +1,44 @@
+{% if unsafe is defined %}
+<div class="px-6 py-12 lg:px-8">
+  <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
+    <a href="#unsafe">
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl hover:text-sky-500" id="unsafe">Unsafe</h1>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">Unsafe is a set of filters / globals / functions that can only be operated if the <i>-u</i> or <i>--unsafe</i> CLI parameter is provided.</p>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200 font-bold underline">Do not use unsafe functions unless you know exactly what they're doing.</p>
+    <p class="mt-6 whitespace-pre-wrap text-red-900 font-extrabold">No, really. They have a nigh unthinkable blast radius.</p>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">Unsafe functions are not executed unless you provide the unsafe CLI argument. The packages that contribute to unsafe functions - eg subprocess - are not imported unless the CLI argument is provided. If you try to run a template that makes use of unsafe functions without providing the CLI you'll get a full exception and Jinny will crash out.</p>
+    <div class="my-6 overflow-hidden rounded-2xl bg-zinc-900 shadow-md dark:ring-1 dark:ring-white/10">
+      <div class="dark:bg-white/2.5">
+        <pre class="overflow-x-auto p-4 text-xs text-white">
+<code class="language-bash">{{ "*********************\n<2024-07-14T20:56:33> - TemplateHandler.Render(): Failed to render template at '/home/smashthings/template.txt' with an exception from Jinja, details:\nType:<class 'Exception'>\nValue:jinny_unsafe.Cmd(): \"cmd\" is an unsafe function and thus requires the -u / --unsafe CLI argument to utilise. This is done to protect you from potentially malicious execution\nTrace:\nTraceback (most recent call last):\n  File \"/home/smashthings/jinny/jinny.py\", line 485, in Render\n    self.result = self.loadedTemplate.render(values)\n  File \"/home/smashthings/environment.py\", line 1301, in render\n    self.environment.handle_exception()\n  File \"/home/smashthings/environment.py\", line 936, in handle_exception\n    raise rewrite_traceback_stack(source=source)\n  File \"<template>\", line 1, in top-level template code\n  File \"/home/smashthings/jinny/imports/jinny_unsafe.py\", line 7, in Cmd\n    raise Exception(f'jinny_unsafe.Cmd(): \"cmd\" is an unsafe function and thus requires the -u / --unsafe CLI argument to utilise. This is done to protect you from potentially malicious execution')\nException: jinny_unsafe.Cmd(): \"cmd\" is an unsafe function and thus requires the -u / --unsafe CLI argument to utilise. This is done to protect you from potentially malicious execution\n" | escape }}<span>
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+    {% for f in unsafe.keys() %}
+    <a href="#unsafe-{{f}}">
+      <h2 class="mt-4 text-2xl font-bold tracking-tight text-gray-300 hover:text-sky-500" id="unsafe-{{f}}">{{f}}</h2>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ unsafe[f].description}}</p>
+    {% if unsafe[f].code is defined %}
+    <br>
+    <div class="my-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-md dark:ring-1 dark:ring-white/10">
+      <div class="dark:bg-white/2.5">
+        <pre class="overflow-x-auto p-4 text-xs text-white">
+<code class="language-bash">{{ unsafe[f].code | escape }}<span>
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+    {% endif%}
+    {% if unsafe[f].additional_content is defined %}
+{{ unsafe[f].additional_content }}
+    {% endif %}
+    {% endfor %}
+    <p class="mt-6 whitespace-pre-wrap text-red-900 font-extrabold">Don't do anything stupid.</p>
+  </div>
+</div>
+{% endif %}

@@ -68,3 +68,4 @@ is_dir_check: {% if is_dir(path.templatedir) %}dir found!{% else %}dir just was 
 
 is_dir_check_failed: {% if not is_dir(path.templatedir + 'non-existent-directory') %}dir NOT found!{% else %}did not detect a directory that does and should exist{% endif %}
 
+unsafe_cmd: {{ cmd('echo big fish') }}
