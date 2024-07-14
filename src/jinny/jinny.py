@@ -14,14 +14,14 @@ import traceback
 import pathlib
 import inspect
 
-from imports import jinny_unsafe
-
 baseDir = os.path.dirname(os.path.abspath(__file__))
 if __name__ == '__main__':
+  from imports import jinny_unsafe
   from imports import filter_extensions
   from imports import global_extensions
 else:
   sys.path.insert(0, baseDir)
+  from imports import jinny_unsafe
   from imports import filter_extensions
   from imports import global_extensions
   sys.path.pop(0)
