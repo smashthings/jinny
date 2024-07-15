@@ -2,7 +2,7 @@
 
 Active = False
 
-def Cmd(cmd, workingDir:str=".", shell:bool=True, quitOnFailure:bool=False, returnStatusCode:bool=False, returnStdOut:bool=True, returnStdErr:bool=True, outputJoin:str="\n", raw:bool=False):
+def Cmd(cmd, workingDir:str=".", shell:bool=True, quitOnFailure:bool=True, returnStatusCode:bool=False, returnStdOut:bool=True, returnStdErr:bool=True, outputJoin:str="\n", raw:bool=False):
   if not Active:
     raise Exception(f'jinny_unsafe.Cmd(): "cmd" is an unsafe function and thus requires the -u / --unsafe CLI argument to utilise. This is done to protect you from potentially malicious execution')
   import subprocess

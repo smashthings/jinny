@@ -9,7 +9,7 @@ unsafe:
 
       In addition to a string or list making up a command cmd also allows for flexibility in the output so you can control whether the command is loaded into a shell environment, just getting stdout, stderr or the exit status and whether or not you want the command to crash out if the command fails. Function params are:
       - shell:bool=True -> chose to run the command in a shell environment, check out the subprocess module for more details
-      - quitOnFailure:bool=False -> raises an exception if the command fails
+      - quitOnFailure:bool=True -> raises an exception if the command fails
       - returnStatusCode:bool=False -> whether to output the resulting status code
       - returnStdOut:bool=True -> whether to output stdout
       - returnStdErr:bool=True -> whether to output stderr
