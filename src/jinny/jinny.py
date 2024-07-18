@@ -58,6 +58,9 @@ HtmlErrorTemplateExitNumber = 0
 
 CurrentLoggingSettings = LoggingSettings()
 
+def ActivateJinnyUnsafe():
+  jinny_unsafe.Activate()
+
 ##########################################
 # Machinery
 def CombineValues(originalVals, newVals, sourceName:str):
@@ -425,7 +428,7 @@ You can modify jinja's environment settings via the rest of the command line opt
 
   import imports.jinny_unsafe as jinny_unsafe
   if args.unsafe:
-    jinny_unsafe.Activate()
+    ActivateJinnyUnsafe()
 
   return args
 
@@ -487,7 +490,7 @@ class TemplateHandler():
         workingValsPointer = None
     except Exception as e:
       execDetails = sys.exc_info()
-      if args.html_error:
+      if args and args.html_error:
         Log(f"TemplateHandler.Render(): Failed to render {'nested template' if self.nested  else 'template' } at '{self.path}' with an exception from Jinja, details:\nType:{execDetails[0]}\nValue:{execDetails[1]}\nTrace:\n{traceback.format_exc()}", AlwaysLog=True)
         Log(f'TemplateHandler.Render() Setting template to error page...', AlwaysLog=True)
         HtmlErrorTemplate.Render({

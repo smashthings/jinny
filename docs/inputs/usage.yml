@@ -131,12 +131,28 @@ usage:
       # Import all helpers and standard elements of Jinny
       import jinny.jinny as jinny
 
-      # And then use it as in this production example
+      # If you need Jinny's unsafe functionality then call the ActivateJinnyUnsafe function
+      jinny.ActivateJinnyUnsafe()
+
+      # If you need the custom filters which is all the custom filters and extensions documented below then make sure that you load them in as well
+      # These are loaded in by default via the CLI route but you can opt into them as a module by running the LoadCustomFilters() function
+      # You have to activate whether Jinny is loading in as unsafe or not before you load in the custom filters
+      jinny.LoadCustomFilters()
+
+      # And then use it as in this production example when working with a raw string
+      # When working with raw strings you're not going to have a path to work off of, so some of the path globals won't populate
       tmpl = jinny.TemplateHandler(templateName="email", rawString=tmplData)
       tmpl.Render({
         'rows': parsedBody
       })
 
+      # Alternatively provide a path and Jinny will read the file and populate the path as usual
+      import os
+      scriptDir = os.path.dirname(__file__)
+      reportRoot = os.path.join(scriptDir, 'report.html')
+      tmpl = jinny.TemplateHandler(templateName="report", path=reportRoot)
+
+      # The result after the call to Render is in the template object at the result property
       print(tmpl.result)
 
 
