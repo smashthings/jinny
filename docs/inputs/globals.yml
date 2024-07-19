@@ -284,3 +284,49 @@ globals:
       A directory exists at /home/smashthings/jinny-tmp/
       </h2>
 
+  raise_exception / throw:
+    description: |
+      Raises an Exception. Amazingly not included within Jinja without some ugly hacks so here's a nicer function that allows for clean and clear exceptions
+    code: |
+      $ cat template.txt
+      {{ raise_exception() }}
+
+      $ jinny -t template.txt
+      *********************
+      <2024-07-19T14:18:48> - TemplateHandler.Render(): Failed to render template at '/home/smashthings/template.txt' with an exception from Jinja, details:
+      Type:<class 'Exception'>
+      Value:Template raised an exception using the 'raise_exception' function!
+      Trace:
+      Traceback (most recent call last):
+        File "/home/smashthings/jinny.py", line 488, in Render
+          self.result = self.loadedTemplate.render(values)
+        File "/home/smashthings/.local/lib/python/site-packages/jinja2/environment.py", line 1301, in render
+          self.environment.handle_exception()
+        File "/home/smashthings/.local/lib/python/site-packages/jinja2/environment.py", line 936, in handle_exception
+          raise rewrite_traceback_stack(source=source)
+        File "<template>", line 1, in top-level template code
+        File "/home/smashthings/jinny/imports/global_extensions.py", line 69, in raise_exception
+          raise Exception(exc)
+      Exception: Template raised an exception using the 'raise_exception' function!
+
+
+      $ cat mortgage_application_response.txt
+      {{ raise_exception("computer says no") }}
+
+      $ jinny -t mortgage_application_response.txt
+      *********************
+      <2024-07-19T14:19:29> - TemplateHandler.Render(): Failed to render template at '/home/smashthings/template.txt' with an exception from Jinja, details:
+      Type:<class 'Exception'>
+      Value:computer says no
+      Trace:
+      Traceback (most recent call last):
+        File "/home/smashthings/jinny.py", line 488, in Render
+          self.result = self.loadedTemplate.render(values)
+        File "/home/smashthings/.local/lib/python/site-packages/jinja2/environment.py", line 1301, in render
+          self.environment.handle_exception()
+        File "/home/smashthings/.local/lib/python/site-packages/jinja2/environment.py", line 936, in handle_exception
+          raise rewrite_traceback_stack(source=source)
+        File "<template>", line 1, in top-level template code
+        File "/home/smashthings/jinny/imports/global_extensions.py", line 69, in raise_exception
+          raise Exception(exc)
+      Exception: computer says no

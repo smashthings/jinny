@@ -65,3 +65,9 @@ def is_file(path:str):
 def is_dir(path:str):
   return os.path.isdir(path)
 
+def raise_exception(exc:str="Template raised an exception using the 'raise_exception' function!"):
+  raise Exception(exc)
+
+def throw(exc:str="Template threw an exception using the 'throw' function!"):
+  raise Exception(exc)
+
