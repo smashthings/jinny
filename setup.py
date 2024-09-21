@@ -23,6 +23,8 @@ setuptools.setup(
     project_urls={
         "Github": "https://github.com/smashthings/jinny",
         "Gitlab": "https://gitlab.com/scripteddog/jinny",
+        "Documentation": "https://jinny.southall.solutions",
+        "Sponsor": "https://skysiege.net",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
