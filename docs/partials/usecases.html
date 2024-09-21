@@ -1,0 +1,31 @@
+{% if usecases is defined %}
+<div class="px-6 py-12 lg:px-8">
+  <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
+    <a href="#usecases">
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl hover:text-sky-500" id="usecases">Real World Use Cases</h1>
+    </a>
+    {% for f in usecases.keys() %}
+    <a href="#usecases-{{f}}">
+      <h2 class="mt-4 text-2xl font-bold tracking-tight text-gray-300 hover:text-sky-500" id="usecases-{{f}}">{{f}}</h2>
+    </a>
+    <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ usecases[f].description}}</p>
+    {% if usecases[f].code is defined %}
+    <br>
+    <div class="my-0 overflow-hidden rounded-2xl bg-zinc-900 shadow-md dark:ring-1 dark:ring-white/10">
+      <div class="dark:bg-white/2.5">
+        <pre class="overflow-x-auto p-4 text-xs text-white">
+<code class="language-bash">{{ usecases[f].code | escape }}<span>
+            </span>
+          </code>
+        </pre>
+      </div>
+    </div>
+    {% endif%}
+    {% if usecases[f].additional_content is defined %}
+{{ usecases[f].additional_content }}
+    {% endif %}
+    {% endfor %}
+
+  </div>
+</div>
+{% endif %}
