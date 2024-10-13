@@ -55,7 +55,7 @@ frontend:
       {% for f in list_files(path.templatedir + '/fonts/') %}
       @font-face {
         font-family: {{ f | basename | removeext }};
-        src: url(data:font/{{ path.templatedir + '/fonts/NewFont.ttf' | getext(period=False) | lower }}; base64, {{ b64file(f) }});
+        src: url(data:font/{{ path.templatedir + '/fonts/' + f | getext(period=False) | lower }}; base64, {{ b64file(f) }});
       }
       {% endfor %}
       </style>
