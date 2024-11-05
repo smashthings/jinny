@@ -604,7 +604,7 @@ def Main():
   ##########################################
   # Templating
   if args.super_verbose:
-    Log("Calculated values:")
+    Log("Main(): Calculated values:")
     print(json.dumps(overallValues, indent=2))
   for ind, tmpl in enumerate(globalAllTemplatesProcessed):
     globalAllTemplatesProcessed[tmpl].Render(overallValues)
