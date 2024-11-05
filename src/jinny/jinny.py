@@ -174,14 +174,11 @@ def GenerateNestedDict(path:list, value):
 
 def ParseValuesFile(path:str):
   ext = os.path.basename(path).split(".")
-  if len(ext) == 2:
-    ext = ext[1]
-  else:
-    ext = None
-  finalObj = None
+  ext = ext[-1]
+  Log(f'ParseValuesFile(): Received path {path} with extension {ext}')
   if not os.path.isfile(path):
-    Log(f"Main(): Inputs file at path '{path}' doesn't exist.", AlwaysLog=True)
-    Log("Main(): Exiting!", quitWithStatus=2)
+    Log(f"ParseValuesFile(): Inputs file at path '{path}' doesn't exist.", AlwaysLog=True)
+    Log("ParseValuesFile(): Exiting!", quitWithStatus=2)
 
   if ext == "yaml" or ext == "yml":
     try:
@@ -190,11 +187,11 @@ def ParseValuesFile(path:str):
       ymlObj = yaml.load(fileData, Loader=yaml.FullLoader)
       return ymlObj
     except Exception as e:
-      Log(f"Main(): Inputs file at path '{path}' has a YAML extension naming convention but fails YAML parsing.", AlwaysLog=True)
+      Log(f"ParseValuesFile(): Inputs file at path '{path}' has a YAML extension naming convention but fails YAML parsing.", AlwaysLog=True)
       if CurrentLoggingSettings.verbosity > 1:
-        Log(f'Main(): Full stack trace:\n\n{traceback.format_exc()}', AlwaysLog=True)
-      Log(f"Main(): Error:\n{e.problem}\n{e.problem_mark}", AlwaysLog=True)
-      Log("Main(): Exiting!", quitWithStatus=2)
+        Log(f'ParseValuesFile(): Full stack trace:\n\n{traceback.format_exc()}', AlwaysLog=True)
+      Log(f"ParseValuesFile(): Error:\n{e.problem}\n{e.problem_mark}", AlwaysLog=True)
+      Log("ParseValuesFile(): Exiting!", quitWithStatus=2)
 
   elif ext == "json":
     try:
@@ -203,11 +200,11 @@ def ParseValuesFile(path:str):
       jsonObj = json.loads(fileData)
       return jsonObj
     except Exception as e:
-      Log(f"Main(): Inputs file at path '{path}' has a JSON extension naming convention but fails JSON parsing.", AlwaysLog=True)
+      Log(f"ParseValuesFile(): Inputs file at path '{path}' has a JSON extension naming convention but fails JSON parsing.", AlwaysLog=True)
       if CurrentLoggingSettings.verbosity > 1:
-        Log(f'Main(): Full stack trace:\n\n{traceback.format_exc()}', AlwaysLog=True)
-      Log(f"Main(): Error: {getattr(e, 'msg')} at line {getattr(e, 'lineno')} column {e.colno}", AlwaysLog=True)
-      Log("Main(): Exiting!", quitWithStatus=2)
+        Log(f'ParseValuesFile(): Full stack trace:\n\n{traceback.format_exc()}', AlwaysLog=True)
+      Log(f"ParseValuesFile(): Error: {getattr(e, 'msg')} at line {getattr(e, 'lineno')} column {e.colno}", AlwaysLog=True)
+      Log("ParseValuesFile(): Exiting!", quitWithStatus=2)
 
   elif ext == "env":
     returningVals = {}
@@ -228,11 +225,11 @@ def ParseValuesFile(path:str):
           returningVals[lastKey] = returningVals[lastKey] + '\n' + s[0].rstrip('\n')
           continue
         elif le == 1 and lastKey == None:
-          Log(f"Main(): Error: Could not understand environment file at line {ln}. There hasn't been a previous key parsed yet this line does not have a key=value format. Not sure what to do. If this is a comment then prepend the line with #", AlwaysLog=True)
-          Log("Main(): Exiting!", quitWithStatus=2)
+          Log(f"ParseValuesFile(): Error: Could not understand environment file at line {ln}. There hasn't been a previous key parsed yet this line does not have a key=value format. Not sure what to do. If this is a comment then prepend the line with #", AlwaysLog=True)
+          Log("ParseValuesFile(): Exiting!", quitWithStatus=2)
         else:
-          Log(f"Main(): Error: Could not understand environment file at line {ln}. This line did not parse as a key=value format. Not sure what to do.", AlwaysLog=True)
-          Log("Main(): Exiting!", quitWithStatus=2)
+          Log(f"ParseValuesFile(): Error: Could not understand environment file at line {ln}. This line did not parse as a key=value format. Not sure what to do.", AlwaysLog=True)
+          Log("ParseValuesFile(): Exiting!", quitWithStatus=2)
     return returningVals
 
   else:
@@ -247,7 +244,7 @@ def ParseValuesFile(path:str):
       return jsonObj
     except Exception as e:
       pass
-    Log(f"Main(): Could not load inputs file '{path}' as either a JSON or a YAML file, please inspect!", quitWithStatus=1)
+    Log(f"ParseValuesFile(): Could not load inputs file '{path}' as either a JSON or a YAML file, please inspect!", quitWithStatus=1)
 
 def LoadCustomFilters():
   global baseJ2Env
