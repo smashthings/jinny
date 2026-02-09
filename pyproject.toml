@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jinny"
+dynamic = ["version"]
+description = "A practical templating tool for Jinja templates"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.9"
+license = "GPL-3.0-only"
+
+authors = [
+  { name = "smasherofallthings", email = "bots@trulydigital.net" }
+]
+
+keywords = ["jinja", "template", "jinja2", "kubernetes", "cli"]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: POSIX :: Other",
+]
+
+dependencies = [
+  "Jinja2>=3.1.2",
+  "PyYAML>=6.0",
+]
+
+[project.urls]
+Github = "https://github.com/smashthings/jinny"
+Gitlab = "https://gitlab.com/scripteddog/jinny"
+Documentation = "https://jinny.southall.solutions"
+Sponsor = "https://skysiege.net"
+
+[project.scripts]
+jinny = "jinny.jinny:Main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { file = ["src/jinny/version"] }
+
+[tool.setuptools.package-data]
+jinny = ["version", "error.html"]
