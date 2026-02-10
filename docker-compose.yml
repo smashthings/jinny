@@ -1,0 +1,7 @@
+services:
+  jinny:
+    image: smasherofallthings/jinny:latest
+    build:
+      context: '.'
+      dockerfile: Dockerfile
+  

@@ -1,10 +1,12 @@
-FROM smasherofallthings/base-image
+FROM smasherofallthings/base-python:amd64-latest
 
-RUN apt-get update && apt-get install -y python3 python3-pip && mkdir /jinny
+RUN mkdir /jinny
+
+COPY pyproject.toml uv.lock /jinny
+RUN cd /jinny && uv sync --active --no-install-project
 
 COPY src/jinny /jinny
-
-RUN cd /jinny && python3 -m pip install --break-system-packages -r /jinny/requirements.txt && chmod a+x /jinny/jinny.py
+RUN  chmod a+x /jinny/jinny.py
 
 ENV PYTHONUNBUFFERED=TRUE
 CMD ["/jinny/jinny.py"]

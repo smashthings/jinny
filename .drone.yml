@@ -89,7 +89,7 @@ steps:
     TWINE_PASSWORD:
       from_secret: PyPIToken
   commands:
-    - python3 setup.py sdist
+    - python3 -m build
     - twine upload dist/*
 
 - name: Push tags to public repos

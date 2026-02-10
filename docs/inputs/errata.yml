@@ -18,9 +18,9 @@ errata:
 
   "Packages used":
     description: |
-      Check out src/jinny/requirements.txt
+      Check out pytproject.toml
 
-      As of December 2022 only PyYAML and Jinja2 are used outside the standard library
+      Since basically forever only PyYAML and Jinja2 are used outside the standard library
 
   FAQs:
     description: |
