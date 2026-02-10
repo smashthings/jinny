@@ -13,5 +13,3 @@ git push --tags
 
 cd "${scriptDir}/../docs"
 docker compose run prod
-
-aws s3 cp dist/index.html s3://jinny.southall.solutions --region eu-west-1

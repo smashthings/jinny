@@ -32,7 +32,6 @@ steps:
 - name: Testing package
   image: smasherofallthings/python-fe
   commands:
-    - python3 setup.py sdist
     - python3 -m pip install "dist/jinny-$$(cat src/jinny/version).tar.gz"
     - which jinny
     - jinny --version
