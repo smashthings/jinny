@@ -1,0 +1,13 @@
+<html>
+<style>
+{{ ( path.templatedir + "css.css" ) | nested_template }}
+</style>
+
+<style>
+{{ ( path.templatedir + "css.css" ) | nested_template(additional_values={'dark_mode': True}) }}
+</style>
+
+<style>
+{{ ( path.templatedir + "css.css" ) | nested_template(exclusive_values={'dark_mode': True}) }}
+</style>
+</html>

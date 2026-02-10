@@ -21,6 +21,12 @@ time_now: {{ time_now("%Y-%m-%dT%H:%M") }}
 nested_template:
 {{ ( path.templatedir + "nested_template.yml" ) | nested_template | indent(2, first=True, blank=True) }}
 
+nested_template_additional:
+{{ ( path.templatedir + "nested_template.yml" ) | nested_template(additional_values={'override':'additional_value'}) | indent(2, first=True, blank=True) }}
+
+nested_template_exclusive:
+{{ ( path.templatedir + "nested_template.yml" ) | nested_template(exclusive_values={'override':'exclusive_value'}) | indent(2, first=True, blank=True) }}
+
 list_files:
 {% for f in list_files(path.templatedir + '/recursive_files', recursive=False) %}
   {{ f | basename }}: {{ f | file_content | trim | indent(4, first=True) }}

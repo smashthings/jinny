@@ -23,9 +23,16 @@ filters:
 
   nested_template:
     description: |
-      Imports and templates other templates with the same values as the master template has received. This may not be thread safe for non-GIL or other multi-threaded implementations of python as it relies on pointer updates to a global variable from the root template. For CPython which is the vast majority of implementations and run-time this is totally fine.
+      Imports and templates other templates into this output. This is the workhorse of jinny templating allowing you to split up your content into separate components which can be templated and imported.
 
-      The benefit of this approach is dodging passing the value stack through the Jinja codebase which can be prone to breaking in Jinja updates and adds a substantial overhead to route and debug. This functionality is well outside of the Jinja's intended design. If you don't want to deviate too far from Jinja then don't use it.
+      By default when called without any additional arguments it will template nested templates with the global input values available to the parent template.
+
+      If you don't want to do this then there's two additional parameters that can be provided: additional_values and exclusive_values.
+
+      <i>additional_values</i> lets you provide additional values that will be merged with the values provided to the parent. This will only affect the nested template and won't be provided to the overall templating process.
+
+      <i>exclusive_values</i> completely overwrites the values from the parent template for the nested template. Use this if you need the nested template to work with completely standalone input values from the parent template.
+
     code: |
       $ cat template.html
 
@@ -33,16 +40,36 @@ filters:
       <style>
       {{ ( path.templatedir + "css.css" ) | nested_template }}
       </style>
+
+      <style>
+      {{ ( path.templatedir + "css.css" ) | nested_template(additional_values={'dark_mode': True}) }}
+      </style>
+
+      <style>
+      {{ ( path.templatedir + "css.css" ) | nested_template(exclusive_values={'dark_mode': True}) }}
+      </style>
       </html>
 
       $ cat css.css
 
-      html { font-weight: {{ font_weight }}; }
+      html { font-weight: {{ font_weight | default('300') }}; }
+      {% if dark_mode %}body { color: white; }{% endif %}
 
       $ jinny -t template.html -e font_weight=600
       <html>
       <style>
       html { font-weight: 600; }
+
+      </style>
+
+      <style>
+      html { font-weight: 600; }
+      body { color: white; }
+      </style>
+
+      <style>
+      html { font-weight: 300; }
+      body { color: white; }
       </style>
       </html>
 

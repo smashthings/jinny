@@ -1,0 +1,2 @@
+html { font-weight: {{ font_weight | default('300') }}; }
+{% if dark_mode %}body { color: white; }{% endif %}

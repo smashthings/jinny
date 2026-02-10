@@ -5,3 +5,16 @@ services:
       context: '.'
       dockerfile: Dockerfile
   
+  tests:
+    image: smasherofallthings/python-fe
+    working_dir: /app/tests
+    volumes:
+      - ./:/app
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    command:
+    - pytest
+    - "-q"
+    - "-x"
+    - "tests.py"

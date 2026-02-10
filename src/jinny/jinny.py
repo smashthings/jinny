@@ -290,13 +290,24 @@ def logToFile(path:str, msg:str):
     with open(path, 'a+') as f:
       f.write(msg + "\n")
 
-def NestedTemplate(filename):
+def NestedTemplate(filename, additional_values=None, exclusive_values=None):
   if os.path.exists(filename):
     dest = filename
   elif os.path.exists(os.path.abspath(filename)):
     dest = os.path.abspath(filename)
   else:
     raise Exception(f"jinny.filter_extenions.nested_template(): The file at path {filename} does not exist!")
+
+  if additional_values is None and exclusive_values is None:
+    templateVals = workingValsPointer
+  else:
+    if additional_values is not None and exclusive_values is not None:
+      raise Exception(f"jinny.filter_extenions.nested_template(): You can't provide both additional and exclusive values for a nested template, that's dumb - {filename}")
+
+    if additional_values is not None:
+      templateVals = CombineValues(workingValsPointer, additional_values, filename)
+    else:
+      templateVals = exclusive_values
 
   Log(f'NestedTemplate(): {dest}')
   nt = TemplateHandler(
@@ -306,7 +317,7 @@ def NestedTemplate(filename):
     path=dest,
   )
   try:
-    res = nt.Render(workingValsPointer)
+    res = nt.Render(templateVals)
     return nt.Result()
   except Exception as e:
     print(f"jinny.filter_extenions.nested_template(): Failed to read and template from file {filename} with exception")

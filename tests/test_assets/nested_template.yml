@@ -1,3 +1,4 @@
 this: "is a nested template"
 nested_path_cwd: {{ path.cwd }}
-nested_value: {{ release_name }}
+nested_value: {{ release_name | default("nothing") }}
+override: {{ override | default("nothing") }}

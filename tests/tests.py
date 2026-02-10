@@ -461,6 +461,21 @@ def test_nested_template():
   assert extensionsOutput["nested_template"]['nested_path_cwd'] == extensionsOutput['path_extensions_each']['cwd']
   assert extensionsOutput["nested_template"]['nested_value'] == extensionsOutput['release_name']
 
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_nested_template_additional():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["nested_template_additional"]
+  assert extensionsOutput["nested_template_additional"]['this'] == "is a nested template"
+  assert extensionsOutput["nested_template_additional"]['override'] == 'additional_value'
+
+@pytest.mark.skipif(extensionsOutput != None, reason="Failed to run prior command for output")
+def test_nested_template_exclusive():
+  print(json.dumps(extensionsOutput, indent=2))
+  assert extensionsOutput["nested_template_exclusive"]
+  assert extensionsOutput["nested_template_exclusive"]['this'] == "is a nested template"
+  assert extensionsOutput["nested_template_exclusive"]['override'] == 'exclusive_value'
+  assert extensionsOutput["nested_template_exclusive"]['nested_value'] == 'nothing'
+
 def test_extensions_print():
   templFile = f"{assetsDir}/print_template.txt"
   status, stdout, stderr = RunCmd([
