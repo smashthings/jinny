@@ -14,6 +14,17 @@ links:
 
 intro:
   description: |
-    Jinny is a templating tool for jinja templates. It can be used for a number of things but was created from a DevOps perspective to aid in configuration management for scaled deployments instead of using tools like Helm, Kustomize, jinja-cli, etc. These days jinny is still used for Ops work but is also used for live applications handling email templating, static HTML generation and more.
+    Jinny is a CLI renderer for Jinja templates designed for infrastructure and configuration workflows.
+    It renders one or many templates using layered values files, environment variables, and CLI overrides, producing deterministic output suitable for CI/CD pipelines, configuration deployment and large-scale templating tasks.
 
-    This very documentation site is built and templated with Jinny. Jinny compiles all the partial templates, the configuration and the CSS into a single HTML file, both during live development and for production artefacts.
+    Unlike packaging tools such as Helm or Kustomize, Jinny focuses purely on template rendering — allowing teams to generate Kubernetes manifests, environment configurations, static HTML, emails, or deployment artefacts without introducing chart structures, release management layers, or custom Python templating scripts.
+
+    Jinny is used across operational and application workflows, including:
+    - Kubernetes manifest generation without Helm
+    - Environment variable and configuration templating for containerized workloads
+    - Static frontend and HTML generation pipelines
+    - Email and HTTP templating inside application runtimes
+    
+    This documentation site itself is built and templated entirely using Jinny, demonstrating its use in both development and production workflows.
+
+    

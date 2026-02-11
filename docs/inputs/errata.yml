@@ -24,14 +24,8 @@ errata:
 
   FAQs:
     description: |
-      <b>Will jinny ever integrate with Kubernetes directly?</b>
-      No. See below for an example of a workable approach.
-
-      <b>What about Windows?</b>
-      My Windows days are behind me and I'm not coming back to it. If you'll like to PR it in go for it, however I'm neither motivated nor tooled up to maintain support for Windows.
-
       <b>Can I donate or support?</b>
-      Nah. I'm good. If jinny really helps and you want to right the balance then please donate to the Guide Dogs UK or Australia or Tassie. With some time, energy and some delicious dog treats they give people back their independence, it's the best ROI I know of.
+      No. If jinny really helps and you want to right the balance then please donate to the Guide Dogs UK or Australia or Tassie. With some time, energy and some delicious dog treats they give people back their independence, it's the best ROI I know of.
 
       <a href="https://www.guidedogs.org.uk">Guide Dogs UK</a>
       <a href="https://guidedogs.com.au">Guide Dogs AU</a>
@@ -56,32 +50,23 @@ errata:
 
   Kubernetes:
     description: |
-      With the move to Kubernetes the amount of templating and general boilerplate become quite heavy going. There's less coding of systems and more grabbing what's on the OSS shelf and slamming config into it until it does what you need it to do. I understand the reasoning for it, but a major side effect is that what there's less 'writing code' and more 'managing config'.
+      With the move to Kubernetes, the volume of templating and general configuration boilerplate has increased significantly. Modern infrastructure involves less traditional system development and more assembling components from the ecosystem and configuring them until they behave as required. The rationale for this shift is understandable, but the practical outcome is that engineering effort has moved away from writing application logic toward managing large amounts of configuration.
 
-      The dominant technology for managing Kubernetes configuration is Helm. Helm and Jinny both do templating. Helm will also attempt deployment management, but I've also found it used just for the templating.
+      The dominant technology for Kubernetes configuration management is Helm. Both Helm and Jinny provide templating capabilities, although Helm also attempts to manage deployments. In practice, Helm is frequently used purely for templating.
 
-      A large motivator behind Jinny was the state of Helm. During my professional career I've witnessed Helm commit significant financial damage through its unreliability, poor logic and its flawed attempts to do too much. Helm templating is a significant downgrade to what Jinja can provide. Helm's deployment management is a source of woe. You can read more about this [here.](https://southall.solutions/articles/helm-an-overview/)
+      A major motivation behind Jinny was the operational reality of Helm. In professional environments I have seen Helm contribute to significant operational and financial impact due to reliability issues, difficult logic behavior, and the complexity introduced by attempting to solve too many problems at once. Helm’s templating system is also substantially less expressive than what Jinja provides, and its deployment-management layer is often a source of operational difficulty. A more detailed discussion is available here: [https://southall.solutions/articles/helm-an-overview/](https://southall.solutions/articles/helm-an-overview/)
 
-      Additionally, templating related requirements have arisen for which there hasn't been suitable tooling. Email templating. Generating NGINX configurations based on the existence of relevant environment variables. Creating reports based on environment variables that can censor sensitive data as required. Jinny has grown to cover these additional use cases as well as handle Kubernetes.
+      Beyond Kubernetes, additional templating requirements emerged for which suitable tooling was lacking: email templating, generating NGINX configurations based on available environment variables, and producing environment-driven reports capable of censoring sensitive data. Jinny has expanded to support these use cases while continuing to handle Kubernetes-related templating workflows.
 
-      Jinny doesn't interface directly with Kubernetes as it only handles the templating. How you deploy to your clusters is instead left entirely up to you.
+      Jinny does not interface directly with Kubernetes; it performs only the templating step. Deployment and cluster interaction are intentionally left to the surrounding tooling.
 
-      Therefore the basic, lowest investment interaction is essentially:
+      The simplest interaction pattern is therefore:
 
-      <code>jinny template * | kubectl <apply|delete> -f -</code>
+      `jinny template * | kubectl <apply|delete> -f -`
 
-      You can do this with a couple of shell functions with the caveat that your templates cannot take inputs or your function must include standardised named input files. Given that Jinny templates can be executed without any input files at all this is still a viable option.
+      This can be wrapped in small shell functions, provided that either the templates require no external inputs or standardized input files are used. Because Jinny templates can run without input files, this approach is often sufficient.
 
-      jk is the name I gave the function but you can use whatever you want. Add the below to your shell's run command script at <code>${HOME}/.bashrc</code> or similar.
-
-      The stdout-separator argument in the below functions places YAML separators on each file that you pass through, meaning that you can do cool things like mash in various files and have them all apply at once. The caveats with this approach being:
-
-      - There's no input files
-      - Relies on tempfile and kubectl being installed
-      - Writes a file to disk or wherever volume tempfile is configured to write to
-      - It's compatible with my bash/zsh setup but you need to check your own
-
-      I'm cool with all of that so works well for me.
+      The example functions below (named `jk` here, though any name can be used) can be added to a shell startup file such as `${HOME}/.bashrc`. The `stdout-separator` option inserts YAML document separators between rendered outputs, allowing multiple files to be processed and applied in a single operation.
 
     code: |
       function jk(){
