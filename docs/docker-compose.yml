@@ -44,3 +44,17 @@ services:
     volumes:
       - .:/interactive
     working_dir: "/interactive"
+
+  npm:
+    image: smasherofallthings/python-fe:amd64-latest
+    restart: "no"
+    network_mode: host
+    environment:
+      HOME: /interactive
+      PYTHONUNBUFFERED: "true"
+    entrypoint:
+      - npm
+    volumes:
+      - .:/interactive
+    working_dir: "/interactive"
+

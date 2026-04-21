@@ -37,28 +37,45 @@
   {% endfor %}
 </head>
 
-<body class="bg-gray-900">
-  {{ ( path.templatedir + "/partials/nav.html" ) | nested_template }}
-  {{ ( path.templatedir + "/partials/title.html" ) | nested_template }}
+<body class="flex min-h-screen flex-col bg-gray-900">
+  <main class="flex-1">
+    {{ ( path.templatedir + "/partials/nav.html" ) | nested_template }}
+    {{ ( path.templatedir + "/partials/title.html" ) | nested_template }}
 
-  <div class="px-6 py-12 lg:px-8">
-    <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
-      <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ intro.description }}</p>
+    <div class="px-6 py-12 lg:px-8">
+      <div class="mx-auto max-w-3xl text-base leading-7 text-grey-200">
+        <p class="mt-6 whitespace-pre-wrap text-gray-200">{{ intro.description }}</p>
+      </div>
+    </div>
+
+    {{ ( path.templatedir + "/partials/usage.html" ) | nested_template }}
+    <hr class="h-px my-4 border-0 bg-gray-200 dark:bg-gray-700">
+    {{ ( path.templatedir + "/partials/filters.html" ) | nested_template }}
+    <hr class="h-px my-4 border-0 bg-gray-200 dark:bg-gray-700">
+    {{ ( path.templatedir + "/partials/usecases.html" ) | nested_template }}
+    <hr class="h-px my-4 border-0 bg-gray-200 dark:bg-gray-700">
+    {{ ( path.templatedir + "/partials/globals.html" ) | nested_template }}
+    <hr class="h-px my-4 border-0 bg-gray-200 dark:bg-gray-700">
+    {{ ( path.templatedir + "/partials/frontend.html" ) | nested_template }}
+    <hr class="h-px my-4 border-0 bg-gray-200 dark:bg-gray-700">
+    {{ ( path.templatedir + "/partials/unsafe.html" ) | nested_template }}
+    <hr class="h-px my-4 border-0 bg-gray-200 dark:bg-gray-700">
+    {{ ( path.templatedir + "/partials/errata.html" ) | nested_template }}
+  </main>
+
+  <footer class="border-t border-gray-800 px-6 py-8 lg:px-8">
+  <div class="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 text-sm text-gray-400 md:flex-row">
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <span class="text-gray-500">
+        Built by
+        <a href="https://trulydigital.net" class="font-medium text-gray-300 transition hover:text-white">
+          Truly Digital
+        </a>
+      </span>
     </div>
   </div>
+</footer>
 
-  {{ ( path.templatedir + "/partials/usage.html" ) | nested_template }}
-  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
-  {{ ( path.templatedir + "/partials/filters.html" ) | nested_template }}
-  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
-  {{ ( path.templatedir + "/partials/usecases.html" ) | nested_template }}
-    <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
-  {{ ( path.templatedir + "/partials/globals.html" ) | nested_template }}
-  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
-  {{ ( path.templatedir + "/partials/frontend.html" ) | nested_template }}
-  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
-  {{ ( path.templatedir + "/partials/unsafe.html" ) | nested_template }}
-  <hr class="h-px my-4 bg-gray-200 border-0 dark:bg-gray-700">
-  {{ ( path.templatedir + "/partials/errata.html" ) | nested_template }}
 </body>
 </html>
