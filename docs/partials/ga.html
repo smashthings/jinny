@@ -9,3 +9,8 @@
   gtag('config', '{{ config.ga_code }}');
 </script>
 {% endif %}
+
+{% if config.ta_proxy_key %}
+<script async src="https://cdn.trulydigital.net/client?key={{ config.ta_proxy_key }}"></script>
+<script async src="https://cdn.trulydigital.net/consent"></script>
+{% end %}

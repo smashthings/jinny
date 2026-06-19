@@ -7,7 +7,8 @@ images:
 
 config:
   base_domain: jinny.southall.solutions
-  ga_code: G-V4LDDYERJE
+  # ga_code: G-V4LDDYERJE
+  ta_proxy_key: izXZ5Bz0HKXa-EzLfFJjmPPDbiv8ZOOX
 
 links:
   github: https://github.com/smashthings/jinny
