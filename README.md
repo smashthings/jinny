@@ -24,6 +24,8 @@ jinny focuses on doing one job well: take templates + take values + render deter
 
 jinny was originally built to template Kubernetes manifests without relying on Helm-style Go templating, but it is equally suited for any configuration or text-generation workflow including generating static site HTML, HTML email generation, templating nested configuration files, and more.
 
+Jinny runs behind the scenes templating for both [SkySiege](https://skysiege.net) and [Truly Analytics](https://trulydigital.net/products/truly-analytics/), both commercial & highly scalable visibility services.
+
 ## Replace Helm templating with jinny in 30 seconds
 
 If you only need templating (not Helm packaging, charts, or release management), jinny provides a simpler workflow.
