@@ -82,7 +82,9 @@ steps:
     TWINE_PASSWORD:
       from_secret: PyPIToken
   commands:
+    - rm -rf dist build
     - python3 -m build
+    - twine check dist/*
     - twine upload dist/*
 
 - name: Push tags to public repos

@@ -28,9 +28,12 @@ dependencies = [
 
 [project.urls]
 Github = "https://github.com/smashthings/jinny"
+Source = "https://github.com/smashthings/jinny"
 Gitlab = "https://gitlab.com/scripteddog/jinny"
 Documentation = "https://jinny.southall.solutions"
 Sponsor = "https://skysiege.net"
+Homepage = "https://trulydigital.net/tools/"
+"Truly Analytics" = "https://trulydigital.net/products/truly-analytics/"
 
 [project.scripts]
 jinny = "jinny.jinny:Main"
